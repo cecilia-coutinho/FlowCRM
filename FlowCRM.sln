@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowCRM", "FlowCRM\FlowCRM\FlowCRM.csproj", "{CDE8A884-7FC2-490A-9CE1-1316E1BF2197}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowCRM.Client", "FlowCRM\FlowCRM.Client\FlowCRM.Client.csproj", "{DCBB1559-360C-47CD-A005-2CA1A7319AED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDE8A884-7FC2-490A-9CE1-1316E1BF2197}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDE8A884-7FC2-490A-9CE1-1316E1BF2197}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDE8A884-7FC2-490A-9CE1-1316E1BF2197}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDE8A884-7FC2-490A-9CE1-1316E1BF2197}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCBB1559-360C-47CD-A005-2CA1A7319AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCBB1559-360C-47CD-A005-2CA1A7319AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCBB1559-360C-47CD-A005-2CA1A7319AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCBB1559-360C-47CD-A005-2CA1A7319AED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7FCD4EE7-E3B4-4E5F-AC16-64A2BC22F2E4}
+	EndGlobalSection
+EndGlobal
