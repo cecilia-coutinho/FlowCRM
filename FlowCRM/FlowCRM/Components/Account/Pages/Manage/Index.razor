@@ -24,9 +24,14 @@
                 <label for="username" class="form-label">Username</label>
             </div>
             <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                <InputText id="phone-number" @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
                 <label for="phone-number" class="form-label">Phone number</label>
                 <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText id="ssn" @bind-Value="Input.SocialSecurityNumber" class="form-control" placeholder="Please enter your social security number." />
+                <label for="ssn" class="form-label">Social Security Number</label>
+                <ValidationMessage For="() => Input.SocialSecurityNumber" class="text-danger" />
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
         </EditForm>
@@ -51,16 +56,21 @@
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
 
         Input.PhoneNumber ??= phoneNumber;
+        Input.SocialSecurityNumber ??= user.SocialSecurityNumber;
     }
 
     private async Task OnValidSubmitAsync()
     {
+        user.PhoneNumber = Input.PhoneNumber;
+        user.SocialSecurityNumber = Input.SocialSecurityNumber;
+
         if (Input.PhoneNumber != phoneNumber)
         {
             var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-            if (!setPhoneResult.Succeeded)
+            var updateResult = await UserManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
             {
-                RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
+                RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to update user.", HttpContext);
             }
         }
 
@@ -73,5 +83,9 @@
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
+
+        //[RegularExpression(@"^\d{8}-\d{4}$", ErrorMessage = "Invalid Social Security Number")]
+        [Display(Name = "Social Security Number")]
+        public string? SocialSecurityNumber { get; set; }
     }
 }
