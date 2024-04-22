@@ -1,5 +1,4 @@
 ﻿@page "/customers"
-
 @inject HttpClient Http
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
@@ -35,14 +34,13 @@ else
 </table>
 }
 
-
 @code {
     List<Customer> customers = new List<Customer>();
 
     protected override async Task OnInitializedAsync()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
+        //await Task.Delay(500);
 
         var result = await Http.GetFromJsonAsync<List<Customer>>("/api/customers");
         if (result != null)
