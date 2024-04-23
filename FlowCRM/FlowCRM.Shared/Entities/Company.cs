@@ -13,6 +13,8 @@ namespace FlowCRM.Shared.Entities
 				public string? CompanyAddress { get; set; }
 				public string? CompanyEmailAddress { get; set; }
 				public string? CompanyPhoneNumber { get; set; }
+				public string? City { get; set; }
+				public string? Country { get; set; }
 				public DateTime? CreatedAt { get; set; }
 				public DateTime? UpdatedAt { get; set; }
 				public Guid? CreatedBy { get; set; }

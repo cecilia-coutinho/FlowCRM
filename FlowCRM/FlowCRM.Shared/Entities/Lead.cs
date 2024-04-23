@@ -7,26 +7,25 @@ using System.Threading.Tasks;
 
 namespace FlowCRM.Shared.Entities
 {
-		public class Contact
+		public class Lead
 		{
-				public Guid ContactId { get; set; }
+				public Guid LeadId { get; set; }
+				public required string FirstName { get; set; }
+				public required string LastName { get; set; }
+				public required string Email { get; set; }
+				public string? PhoneNumber { get; set; }
 
-				[ForeignKey("Customer")]
-				public Guid? CustomerId { get; set; }
-				public Customer? Customer { get; set; }
+				[ForeignKey("Priority")]
+				public Guid? PriorityId { get; set; }
+				public Priority? Priority { get; set; }
 
 				[ForeignKey("Company")]
 				public Guid? CompanyId { get; set; }
 				public Company? Company { get; set; }
 
-				public required string FirstName { get; set; }
-				public required string LastName { get; set; }
-				public required string Email { get; set; }
-				public string? PhoneNumber { get; set; }
 				public DateTime? CreatedAt { get; set; }
 				public DateTime? UpdatedAt { get; set; }
 				public Guid? CreatedBy { get; set; }
 				public Guid? UpdatedBy { get; set; }
-
 		}
 }

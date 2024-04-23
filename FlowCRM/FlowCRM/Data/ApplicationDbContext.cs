@@ -19,7 +19,7 @@ namespace FlowCRM.Data
                 entity.Property(e => e.FirstName).IsRequired();
                 entity.Property(e => e.LastName).IsRequired();
                 entity.Property(e => e.Email).IsRequired();
-                entity.Property(e => e.Phone);
+                entity.Property(e => e.PhoneNumber);
             });
 
             builder.Entity<Customer>().HasData(
