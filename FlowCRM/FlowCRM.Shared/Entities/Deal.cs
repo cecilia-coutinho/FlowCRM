@@ -13,6 +13,7 @@ namespace FlowCRM.Shared.Entities
 				public Guid CompanyId { get; set; }
 				public required decimal DealAmount { get; set; }
 				public required Guid DealStatusId { get; set; }
+				public required Guid PriorityId { get; set; }
 				public DateTime? CreatedAt { get; set; }
 				public DateTime? UpdatedAt { get; set; }
 				public Guid? CreatedBy { get; set; }
