@@ -12,11 +12,11 @@ namespace FlowCRM.Shared.Entities
 				public Guid ActivityId { get; set; }
 
 				[ForeignKey("Deal")]
-				public Guid DealId { get; set; }
+				public Guid FkDealId { get; set; }
 				public Deal? Deal { get; set; }
 
 				[ForeignKey("ActivityType")]
-				public Guid ActivityTypeId { get; set; }
+				public Guid FkActivityTypeId { get; set; }
 				public ActivityType? ActivityType { get; set; }
 
 				public string? ActivityNote { get; set; }

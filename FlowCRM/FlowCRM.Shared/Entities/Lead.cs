@@ -16,11 +16,11 @@ namespace FlowCRM.Shared.Entities
 				public string? PhoneNumber { get; set; }
 
 				[ForeignKey("Priority")]
-				public Guid? PriorityId { get; set; }
+				public Guid? FkPriorityId { get; set; }
 				public Priority? Priority { get; set; }
 
 				[ForeignKey("Company")]
-				public Guid? CompanyId { get; set; }
+				public Guid? FkCompanyId { get; set; }
 				public Company? Company { get; set; }
 
 				public DateTime? CreatedAt { get; set; }

@@ -12,11 +12,11 @@ namespace FlowCRM.Shared.Entities
 				public Guid ContactId { get; set; }
 
 				[ForeignKey("Customer")]
-				public Guid? CustomerId { get; set; }
+				public Guid? FkCustomerId { get; set; }
 				public Customer? Customer { get; set; }
 
 				[ForeignKey("Company")]
-				public Guid? CompanyId { get; set; }
+				public Guid? FkCompanyId { get; set; }
 				public Company? Company { get; set; }
 
 				public required string FirstName { get; set; }
