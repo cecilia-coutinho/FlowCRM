@@ -19,5 +19,10 @@ namespace FlowCRM.Shared.Entities
 				public DateTime? UpdatedAt { get; set; }
 				public Guid? CreatedBy { get; set; }
 				public Guid? UpdatedBy { get; set; }
+
+				// Navigation properties
+				public ICollection<Contact>? Contacts { get; set; }
+				public ICollection<Deal>? Deals { get; set; }
+				public ICollection<Lead>? Leads { get; set; }
 		}
 }

@@ -10,5 +10,9 @@ namespace FlowCRM.Shared.Entities
 		{
 				public Guid PriorityId { get; set; }
 				public required string PriorityName { get; set; }
+
+				// Navigation properties
+				public ICollection<Deal>? Deals { get; set; }
+				public ICollection<Lead>? Leads { get; set; }
 		}
 }

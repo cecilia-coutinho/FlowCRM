@@ -10,5 +10,7 @@ namespace FlowCRM.Shared.Entities
 		{
 				public Guid ActivityTypeId { get; set; }
 				public required string TypeName { get; set; }
+
+				public ICollection<Activity>? Activities { get; set; }
 		}
 }

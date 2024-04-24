@@ -10,20 +10,17 @@ namespace FlowCRM.Shared.Entities
 		public class Activity
 		{
 				public Guid ActivityId { get; set; }
-
-				[ForeignKey("Deal")]
 				public Guid FkDealId { get; set; }
-				public Deal? Deal { get; set; }
-
-				[ForeignKey("ActivityType")]
 				public Guid FkActivityTypeId { get; set; }
-				public ActivityType? ActivityType { get; set; }
-
 				public string? ActivityNote { get; set; }
 				public required DateTime ActivityDate { get; set; }
 				public DateTime? CreatedAt { get; set; }
 				public DateTime? UpdatedAt { get; set; }
 				public Guid? CreatedBy { get; set; }
 				public Guid? UpdatedBy { get; set; }
+
+				// Navigation properties FKs
+				public virtual Deal? Deals { get; set; }
+				public virtual ActivityType? ActivitiesType { get; set; }
 		}
 }

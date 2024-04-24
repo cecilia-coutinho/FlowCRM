@@ -14,18 +14,15 @@ namespace FlowCRM.Shared.Entities
 				public required string LastName { get; set; }
 				public required string Email { get; set; }
 				public string? PhoneNumber { get; set; }
-
-				[ForeignKey("Priority")]
 				public Guid? FkPriorityId { get; set; }
-				public Priority? Priority { get; set; }
-
-				[ForeignKey("Company")]
 				public Guid? FkCompanyId { get; set; }
-				public Company? Company { get; set; }
-
 				public DateTime? CreatedAt { get; set; }
 				public DateTime? UpdatedAt { get; set; }
 				public Guid? CreatedBy { get; set; }
 				public Guid? UpdatedBy { get; set; }
+
+				// Navigation properties
+				public virtual Priority? Priorities { get; set; }
+				public virtual Company? Companies { get; set; }
 		}
 }

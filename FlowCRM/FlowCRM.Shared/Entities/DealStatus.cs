@@ -10,5 +10,8 @@ namespace FlowCRM.Shared.Entities
 		{
 				public Guid DealStatusId { get; set; }
 				public required string StatusName { get; set; }
+
+				// Navigation properties
+				public ICollection<Deal>? Deals { get; set; }
 		}
 }
