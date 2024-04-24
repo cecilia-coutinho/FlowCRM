@@ -4,6 +4,7 @@ using FlowCRM.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FlowCRM.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240423164046_Test")]
+    partial class Test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +99,9 @@ namespace FlowCRM.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ActivitiesTypeActivityTypeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("ActivityDate")
                         .HasColumnType("datetime2");
 
@@ -106,6 +112,9 @@ namespace FlowCRM.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DealsDealId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("FkActivityTypeId")
@@ -122,11 +131,11 @@ namespace FlowCRM.Migrations
 
                     b.HasKey("ActivityId");
 
-                    b.HasIndex("FkActivityTypeId");
+                    b.HasIndex("ActivitiesTypeActivityTypeId");
 
-                    b.HasIndex("FkDealId");
+                    b.HasIndex("DealsDealId");
 
-                    b.ToTable("Activities");
+                    b.ToTable("Activity");
                 });
 
             modelBuilder.Entity("FlowCRM.Entities.ActivityType", b =>
@@ -137,14 +146,11 @@ namespace FlowCRM.Migrations
 
                     b.Property<string>("TypeName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ActivityTypeId");
 
-                    b.HasIndex("TypeName")
-                        .IsUnique();
-
-                    b.ToTable("ActivitiesType");
+                    b.ToTable("ActivityType");
                 });
 
             modelBuilder.Entity("FlowCRM.Entities.Company", b =>
@@ -160,11 +166,11 @@ namespace FlowCRM.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyEmailAddress")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyPhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -186,14 +192,7 @@ namespace FlowCRM.Migrations
 
                     b.HasKey("CompanyId");
 
-                    b.HasIndex("CompanyEmailAddress")
-                        .IsUnique()
-                        .HasFilter("[CompanyEmailAddress] IS NOT NULL");
-
-                    b.HasIndex("CompanyName")
-                        .IsUnique();
-
-                    b.ToTable("Companies");
+                    b.ToTable("Company");
                 });
 
             modelBuilder.Entity("FlowCRM.Entities.Contact", b =>
@@ -202,15 +201,21 @@ namespace FlowCRM.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CompaniesCompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CustomersCustomerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -237,14 +242,11 @@ namespace FlowCRM.Migrations
 
                     b.HasKey("ContactId");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
+                    b.HasIndex("CompaniesCompanyId");
 
-                    b.HasIndex("FkCompanyId");
+                    b.HasIndex("CustomersCustomerId");
 
-                    b.HasIndex("FkCustomerId");
-
-                    b.ToTable("Contacts");
+                    b.ToTable("Contact");
                 });
 
             modelBuilder.Entity("FlowCRM.Entities.Customer", b =>
@@ -296,10 +298,10 @@ namespace FlowCRM.Migrations
                     b.HasData(
                         new
                         {
-                            CustomerId = new Guid("9530287f-5ab3-4692-b861-c1db40a30196"),
+                            CustomerId = new Guid("7d0049d5-1171-4ff9-9881-e443b28ce5b8"),
                             City = "New York",
                             Country = "USA",
-                            CreatedAt = new DateTime(2024, 4, 24, 15, 23, 58, 981, DateTimeKind.Local).AddTicks(5601),
+                            CreatedAt = new DateTime(2024, 4, 23, 18, 40, 45, 728, DateTimeKind.Local).AddTicks(9401),
                             Email = "john.doe@example.com",
                             FirstName = "John",
                             LastName = "Doe",
@@ -307,10 +309,10 @@ namespace FlowCRM.Migrations
                         },
                         new
                         {
-                            CustomerId = new Guid("0c632803-e079-417d-a67d-c809ef3a8b8c"),
+                            CustomerId = new Guid("ba4a7f51-21e0-4bfb-aa93-710c5c41af10"),
                             City = "California",
                             Country = "USA",
-                            CreatedAt = new DateTime(2024, 4, 24, 15, 23, 58, 981, DateTimeKind.Local).AddTicks(5670),
+                            CreatedAt = new DateTime(2024, 4, 23, 18, 40, 45, 728, DateTimeKind.Local).AddTicks(9452),
                             Email = "maria.rosa@example.com",
                             FirstName = "Maria",
                             LastName = "Rosa",
@@ -324,14 +326,23 @@ namespace FlowCRM.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CompaniesCompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CustomersCustomerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("DealAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("DealsStatusDealStatusId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("FkCompanyId")
                         .HasColumnType("uniqueidentifier");
@@ -345,6 +356,9 @@ namespace FlowCRM.Migrations
                     b.Property<Guid>("FkPriorityId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("PrioritiesPriorityId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -353,15 +367,15 @@ namespace FlowCRM.Migrations
 
                     b.HasKey("DealId");
 
-                    b.HasIndex("FkCompanyId");
+                    b.HasIndex("CompaniesCompanyId");
 
-                    b.HasIndex("FkCustomerId");
+                    b.HasIndex("CustomersCustomerId");
 
-                    b.HasIndex("FkDealStatusId");
+                    b.HasIndex("DealsStatusDealStatusId");
 
-                    b.HasIndex("FkPriorityId");
+                    b.HasIndex("PrioritiesPriorityId");
 
-                    b.ToTable("Deals");
+                    b.ToTable("Deal");
                 });
 
             modelBuilder.Entity("FlowCRM.Entities.DealStatus", b =>
@@ -372,20 +386,20 @@ namespace FlowCRM.Migrations
 
                     b.Property<string>("StatusName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DealStatusId");
 
-                    b.HasIndex("StatusName")
-                        .IsUnique();
-
-                    b.ToTable("DealsStatus");
+                    b.ToTable("DealStatus");
                 });
 
             modelBuilder.Entity("FlowCRM.Entities.Lead", b =>
                 {
                     b.Property<Guid>("LeadId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CompaniesCompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -415,6 +429,9 @@ namespace FlowCRM.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("PrioritiesPriorityId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -423,11 +440,11 @@ namespace FlowCRM.Migrations
 
                     b.HasKey("LeadId");
 
-                    b.HasIndex("FkCompanyId");
+                    b.HasIndex("CompaniesCompanyId");
 
-                    b.HasIndex("FkPriorityId");
+                    b.HasIndex("PrioritiesPriorityId");
 
-                    b.ToTable("Leads");
+                    b.ToTable("Lead");
                 });
 
             modelBuilder.Entity("FlowCRM.Entities.Priority", b =>
@@ -438,14 +455,11 @@ namespace FlowCRM.Migrations
 
                     b.Property<string>("PriorityName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PriorityId");
 
-                    b.HasIndex("PriorityName")
-                        .IsUnique();
-
-                    b.ToTable("Priorities");
+                    b.ToTable("Priority");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -585,15 +599,11 @@ namespace FlowCRM.Migrations
                 {
                     b.HasOne("FlowCRM.Entities.ActivityType", "ActivitiesType")
                         .WithMany("Activities")
-                        .HasForeignKey("FkActivityTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ActivitiesTypeActivityTypeId");
 
                     b.HasOne("FlowCRM.Entities.Deal", "Deals")
                         .WithMany("Activities")
-                        .HasForeignKey("FkDealId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DealsDealId");
 
                     b.Navigation("ActivitiesType");
 
@@ -604,11 +614,11 @@ namespace FlowCRM.Migrations
                 {
                     b.HasOne("FlowCRM.Entities.Company", "Companies")
                         .WithMany("Contacts")
-                        .HasForeignKey("FkCompanyId");
+                        .HasForeignKey("CompaniesCompanyId");
 
                     b.HasOne("FlowCRM.Entities.Customer", "Customers")
                         .WithMany("Contacts")
-                        .HasForeignKey("FkCustomerId");
+                        .HasForeignKey("CustomersCustomerId");
 
                     b.Navigation("Companies");
 
@@ -619,23 +629,19 @@ namespace FlowCRM.Migrations
                 {
                     b.HasOne("FlowCRM.Entities.Company", "Companies")
                         .WithMany("Deals")
-                        .HasForeignKey("FkCompanyId");
+                        .HasForeignKey("CompaniesCompanyId");
 
                     b.HasOne("FlowCRM.Entities.Customer", "Customers")
                         .WithMany("Deals")
-                        .HasForeignKey("FkCustomerId");
+                        .HasForeignKey("CustomersCustomerId");
 
                     b.HasOne("FlowCRM.Entities.DealStatus", "DealsStatus")
                         .WithMany("Deals")
-                        .HasForeignKey("FkDealStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DealsStatusDealStatusId");
 
                     b.HasOne("FlowCRM.Entities.Priority", "Priorities")
                         .WithMany("Deals")
-                        .HasForeignKey("FkPriorityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PrioritiesPriorityId");
 
                     b.Navigation("Companies");
 
@@ -650,11 +656,11 @@ namespace FlowCRM.Migrations
                 {
                     b.HasOne("FlowCRM.Entities.Company", "Companies")
                         .WithMany("Leads")
-                        .HasForeignKey("FkCompanyId");
+                        .HasForeignKey("CompaniesCompanyId");
 
                     b.HasOne("FlowCRM.Entities.Priority", "Priorities")
                         .WithMany("Leads")
-                        .HasForeignKey("FkPriorityId");
+                        .HasForeignKey("PrioritiesPriorityId");
 
                     b.Navigation("Companies");
 

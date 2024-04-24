@@ -1,0 +1,49 @@
+﻿@page "/customers"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>Customers</PageTitle>
+<h1>Customers</h1>
+<p>This is the customer overview page.</p>
+
+@if(customers.Count == 0) {
+    <p>Loading...</p>
+}
+else
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in customers)
+        {
+            <tr>
+                <td>@customer.FirstName</td>
+                <td>@customer.LastName</td>
+                <td>@customer.Email</td>
+                <td>@customer.PhoneNumber</td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+@code {
+    List<Customer> customers = new List<Customer>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        //await Task.Delay(500);
+
+        var result = await Http.GetFromJsonAsync<List<Customer>>("/api/customers");
+        if (result != null)
+        customers = result;
+    }
+}
