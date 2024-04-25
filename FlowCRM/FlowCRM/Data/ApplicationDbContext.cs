@@ -108,6 +108,41 @@ namespace FlowCRM.Data
 								Country = "USA",
 								CreatedAt = DateTime.Now
 						});
+
+            builder.Entity<Company>().HasData(
+            new Company
+            {
+              CompanyId = Guid.NewGuid(),
+              CompanyName = "Microsoft",
+              CompanyAddress = "Redmond, Washington",
+              CompanyEmailAddress = "microsoft.example@example.com",
+              CompanyPhoneNumber = "123456789",
+              City = "Redmond",
+              Country = "USA",
+              CreatedAt = DateTime.Now
+            },
+            new Company
+            {
+              CompanyId = Guid.NewGuid(),
+              CompanyName = "Apple",
+              CompanyAddress = "Cupertino, California",
+              CompanyEmailAddress = "apple.example@example.com",
+              CompanyPhoneNumber = "123456780",
+              City = "Cupertino",
+              Country = "USA",
+              CreatedAt = DateTime.Now
+            });
+
+            builder.Entity<Contact>().HasData(
+            new Contact
+            {
+              ContactId = Guid.NewGuid(),
+              FirstName = "Anna",
+              LastName = "Banana",
+              Email = "anna.banana@example.com",
+              PhoneNumber = "123456789",
+              CreatedAt = DateTime.Now
+            });
 				}
     }
 
