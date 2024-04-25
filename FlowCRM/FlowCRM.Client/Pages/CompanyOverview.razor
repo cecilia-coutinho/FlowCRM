@@ -1,0 +1,53 @@
+﻿@page "/companies"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>Companies</PageTitle>
+<h1>Companies</h1>
+<p>This is the companies overview page.</p>
+
+@if(companies.Count == 0) {
+    <p>Loading...</p>
+}
+else
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Company Name</th>
+            <th>Address</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>City</th>
+            <th>Country</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var companie in companies)
+        {
+            <tr>
+                <td>@companie.CompanyName</td>
+                <td>@companie.CompanyAddress</td>
+                <td>@companie.CompanyEmailAddress</td>
+                <td>@companie.CompanyPhoneNumber</td>
+                <td>@companie.City</td>
+                <td>@companie.Country</td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+@code {
+    List<Company> companies = new List<Company>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        //await Task.Delay(500);
+
+        var result = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
+        if (result != null)
+        companies = result;
+    }
+}

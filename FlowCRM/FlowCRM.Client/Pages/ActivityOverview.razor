@@ -1,0 +1,54 @@
+﻿@page "/activities"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>Contacts</PageTitle>
+<h1>Contacts</h1>
+<p>This is the contacts overview page.</p>
+
+@if(contacts.Count == 0) {
+    <p>Loading...</p>
+}
+else
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in contacts)
+        {
+            <tr>
+                <td>@contact.FirstName</td>
+                <td>@contact.LastName</td>
+                <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
+                <td>@contact.Email</td>
+                <td>@contact.PhoneNumber</td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+@code {
+    List<Contact> contacts = new List<Contact>();
+    List<Company> companies = new List<Company>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var contactResult = await Http.GetFromJsonAsync<List<Contact>>("/api/contacts");
+        var companyResult = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
+
+        if (contactResult != null)
+        contacts = contactResult;
+
+        if (companyResult != null)
+        companies = companyResult;
+    }
+}

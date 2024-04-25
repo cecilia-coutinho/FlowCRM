@@ -1,0 +1,55 @@
+﻿@page "/leads"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>Leads</PageTitle>
+<h1>Leads</h1>
+<p>This is the leads overview page.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Priority</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in leads)
+        {
+            <tr>
+                <td>@contact.FirstName</td>
+                <td>@contact.LastName</td>
+                <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
+                <td>@contact.Email</td>
+                <td>@contact.PhoneNumber</td>
+                <td>@priorities.FirstOrDefault(p => p.PriorityId == contact.FkPriorityId)?.PriorityName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    List<Lead> leads = new List<Lead>();
+    List<Company> companies = new List<Company>();
+    List<Priority> priorities = new List<Priority>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var leadResult = await Http.GetFromJsonAsync<List<Lead>>("/api/leads");
+        var companyResult = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
+        var priorityResult = await Http.GetFromJsonAsync<List<Priority>>("/api/priorities");
+
+        if (leadResult != null)
+        leads = leadResult;
+
+        if (companyResult != null)
+        companies = companyResult;
+
+        if (priorityResult != null)
+        priorities = priorityResult;
+    }
+}
