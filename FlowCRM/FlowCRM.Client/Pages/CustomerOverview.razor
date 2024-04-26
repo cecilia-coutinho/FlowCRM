@@ -1,49 +1,71 @@
 ﻿@page "/customers"
-@inject HttpClient Http
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
 <PageTitle>Customers</PageTitle>
 <h1>Customers</h1>
 <p>This is the customer overview page.</p>
 
-@if(customers.Count == 0) {
-    <p>Loading...</p>
+@if (customers.Count == 0)
+{
+	<div class="spinner-border text-primary" role="status">
+		<span class="visually-hidden">Loading...</span>
+	</div>
 }
+@* @if (customers.Count <= 0)
+{
+	<div class="alert alert-info">
+		<p>There are currently no customers in the database. Please check back later or add a new customer.</p>
+	</div>
+} *@
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var customer in customers)
-        {
-            <tr>
-                <td>@customer.FirstName</td>
-                <td>@customer.LastName</td>
-                <td>@customer.Email</td>
-                <td>@customer.PhoneNumber</td>
-            </tr>
-        }
-    </tbody>
-</table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
+				<th>Phone Number</th>
+				<th>City</th>
+				<th>Country</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var customer in customers)
+			{
+				<tr>
+					<td>@customer.FirstName</td>
+					<td>@customer.LastName</td>
+					<td>@customer.Email</td>
+					<td>@customer.PhoneNumber</td>
+					<td>@customer.City</td>
+					<td>@customer.Country</td>
+					<td>
+						<div class="hstack gap-2">
+							<i class="oi oi-pencil text-info"></i>
+							<i class="oi oi-trash text-danger"></i>
+						</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 }
 
 @code {
-    List<Customer> customers = new List<Customer>();
+	List<Customer> customers = new List<Customer>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        //await Task.Delay(500);
+	protected override async Task OnInitializedAsync()
+	{
+		var result = await CustomerService.GetCustomersAsync();
+		customers.Clear();
+		if (result == null)
+			return;
 
-        var result = await Http.GetFromJsonAsync<List<Customer>>("/api/customers");
-        if (result != null)
-        customers = result;
-    }
+		foreach (var customer in result)
+		{
+			customers.Add(customer);
+		}
+	}
 }
