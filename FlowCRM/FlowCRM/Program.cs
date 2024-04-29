@@ -2,9 +2,12 @@ using FlowCRM.Client.Pages;
 using FlowCRM.Components;
 using FlowCRM.Components.Account;
 using FlowCRM.Data;
+using FlowCRM.Implementations;
+using FlowCRM.Shared.Repositories;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +28,22 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingServerAuthenticationStateProvider>();
+
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IContactRepository, ContactRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IDealRepository, DealRepository>();
+builder.Services.AddScoped<IDealStatusRepository, DealStatusRepository>();
+builder.Services.AddScoped<ILeadRepository, LeadRepository>();
+builder.Services.AddScoped<IActivityTypeRepository, ActivityTypeRepository>();
+builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
+
+
+builder.Services.AddScoped(http => new HttpClient
+{
+	BaseAddress = new Uri(builder.Configuration.GetSection("BaseAddress").Value!)
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>

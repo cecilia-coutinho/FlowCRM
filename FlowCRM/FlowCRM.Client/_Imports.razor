@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using FlowCRM.Shared.Repositories
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
@@ -9,3 +10,13 @@
 @using Microsoft.JSInterop
 @using FlowCRM.Client
 @using FlowCRM.Shared.Entities
+
+@inject ICustomerRepository CustomerService
+@inject ICompanyRepository CompanyService
+@inject IContactRepository ContactService
+@inject IDealRepository DealService
+@inject ILeadRepository LeadService
+@inject IActivityRepository ActivityService
+@inject IActivityTypeRepository ActivityTypeService
+@inject IPriorityRepository PriorityService
+@inject IDealStatusRepository DealStatusService

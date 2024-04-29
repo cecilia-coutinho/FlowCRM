@@ -4,6 +4,7 @@ using FlowCRM.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FlowCRM.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240426133851_UpdateVariablesType")]
+    partial class UpdateVariablesType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,62 +152,62 @@ namespace FlowCRM.Migrations
                     b.HasData(
                         new
                         {
-                            ActivityTypeId = new Guid("33e98c67-4b47-4b32-ab66-507887dc039f"),
+                            ActivityTypeId = new Guid("78bc53d2-8b1b-4b5d-897c-c44ce89e9017"),
                             TypeName = "Call"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("2ceddafc-c6bf-4c6f-816b-a715ddda7a89"),
+                            ActivityTypeId = new Guid("09924757-10bc-4383-977d-7f5f8291e605"),
                             TypeName = "Meeting"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("1e0b3e2b-4230-4bac-b01d-d3c41aa8a098"),
+                            ActivityTypeId = new Guid("4deb2444-2b3b-4a92-8450-0446f6fb1b54"),
                             TypeName = "Email"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("f8f57284-59d3-4803-8470-71fc4153541a"),
+                            ActivityTypeId = new Guid("e38323cd-7a5b-4fbc-b974-f86ea4eae819"),
                             TypeName = "Task"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("37c1837a-27b4-471d-9c18-97954eb2a42a"),
+                            ActivityTypeId = new Guid("b1ca2a80-3bdb-4846-946b-ace812e66f3d"),
                             TypeName = "Note"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("c686a8e7-0140-4a82-9c1e-8820aad011e3"),
+                            ActivityTypeId = new Guid("771eb53c-d01f-42bc-9a60-bfa40d11696e"),
                             TypeName = "Other"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("c62a3860-8c2f-480b-9716-80ec6b40864b"),
+                            ActivityTypeId = new Guid("e159bf8d-2158-4402-9aea-95baac77e3f6"),
                             TypeName = "Follow-up"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("3654800c-52b9-4b07-a9cb-630aa3f719c1"),
+                            ActivityTypeId = new Guid("da581035-4f44-47c7-a205-e3cc96461a52"),
                             TypeName = "Demo"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("5f478274-ac85-4514-9629-4e30a6062415"),
+                            ActivityTypeId = new Guid("0dfc1432-735d-4ed5-ad89-04d2611e7ff0"),
                             TypeName = "Presentation"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("91ba2708-7e97-4879-b914-a9a6d4544fb7"),
+                            ActivityTypeId = new Guid("f81efac2-521d-4c4a-870a-512a758dd671"),
                             TypeName = "Training"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("e0921ac9-f1c1-4e53-bdad-dff4f83ca442"),
+                            ActivityTypeId = new Guid("23883b0a-4843-4d1a-8e5b-b6a309766f74"),
                             TypeName = "Webinar"
                         },
                         new
                         {
-                            ActivityTypeId = new Guid("10c5c378-58df-4449-8826-c38a49037015"),
+                            ActivityTypeId = new Guid("c74cbfba-3d32-4cd6-b274-11b957101bae"),
                             TypeName = "Workshop"
                         });
                 });
@@ -260,25 +263,25 @@ namespace FlowCRM.Migrations
                     b.HasData(
                         new
                         {
-                            CompanyId = new Guid("e631df5b-70fe-4bdd-bbe2-f382fd44399b"),
+                            CompanyId = new Guid("245b144e-da37-4793-bafa-faeafd971380"),
                             City = "Redmond",
                             CompanyAddress = "Redmond, Washington",
                             CompanyEmailAddress = "microsoft.example@example.com",
                             CompanyName = "Microsoft",
                             CompanyPhoneNumber = "123456789",
                             Country = "USA",
-                            CreatedAt = new DateTime(2024, 4, 29, 15, 44, 40, 193, DateTimeKind.Local).AddTicks(7537)
+                            CreatedAt = new DateTime(2024, 4, 26, 15, 38, 50, 779, DateTimeKind.Local).AddTicks(1051)
                         },
                         new
                         {
-                            CompanyId = new Guid("a6910354-dee7-4b00-b551-1d577d5d90a3"),
+                            CompanyId = new Guid("ab587bc6-04e1-4301-9e2f-62fdc4931b0b"),
                             City = "Cupertino",
                             CompanyAddress = "Cupertino, California",
                             CompanyEmailAddress = "apple.example@example.com",
                             CompanyName = "Apple",
                             CompanyPhoneNumber = "123456780",
                             Country = "USA",
-                            CreatedAt = new DateTime(2024, 4, 29, 15, 44, 40, 193, DateTimeKind.Local).AddTicks(7540)
+                            CreatedAt = new DateTime(2024, 4, 26, 15, 38, 50, 779, DateTimeKind.Local).AddTicks(1055)
                         });
                 });
 
@@ -335,8 +338,8 @@ namespace FlowCRM.Migrations
                     b.HasData(
                         new
                         {
-                            ContactId = new Guid("c6eb4cfb-54c6-460c-afe7-22a8c94e48c5"),
-                            CreatedAt = new DateTime(2024, 4, 29, 15, 44, 40, 193, DateTimeKind.Local).AddTicks(7557),
+                            ContactId = new Guid("1dd2040f-f3bf-4ee1-81a4-315cdeec91f5"),
+                            CreatedAt = new DateTime(2024, 4, 26, 15, 38, 50, 779, DateTimeKind.Local).AddTicks(1072),
                             Email = "anna.banana@example.com",
                             FirstName = "Anna",
                             LastName = "Banana",
@@ -393,10 +396,10 @@ namespace FlowCRM.Migrations
                     b.HasData(
                         new
                         {
-                            CustomerId = new Guid("7a10bdeb-c80c-4359-aab3-f633c0bd6dea"),
+                            CustomerId = new Guid("a61d767f-bd03-407b-8018-f3b0d638fbc3"),
                             City = "New York",
                             Country = "USA",
-                            CreatedAt = new DateTime(2024, 4, 29, 15, 44, 40, 193, DateTimeKind.Local).AddTicks(7387),
+                            CreatedAt = new DateTime(2024, 4, 26, 15, 38, 50, 779, DateTimeKind.Local).AddTicks(902),
                             Email = "john.doe@example.com",
                             FirstName = "John",
                             LastName = "Doe",
@@ -404,10 +407,10 @@ namespace FlowCRM.Migrations
                         },
                         new
                         {
-                            CustomerId = new Guid("6bdaee29-96c7-421a-9de5-cab6a2961000"),
+                            CustomerId = new Guid("24579d01-79ef-4627-9cbf-4711c0b60c58"),
                             City = "California",
                             Country = "USA",
-                            CreatedAt = new DateTime(2024, 4, 29, 15, 44, 40, 193, DateTimeKind.Local).AddTicks(7444),
+                            CreatedAt = new DateTime(2024, 4, 26, 15, 38, 50, 779, DateTimeKind.Local).AddTicks(950),
                             Email = "maria.rosa@example.com",
                             FirstName = "Maria",
                             LastName = "Rosa",
@@ -430,9 +433,6 @@ namespace FlowCRM.Migrations
                     b.Property<decimal>("DealAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("DealName")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<Guid?>("FkCompanyId")
                         .HasColumnType("uniqueidentifier");
 
@@ -452,10 +452,6 @@ namespace FlowCRM.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DealId");
-
-                    b.HasIndex("DealName")
-                        .IsUnique()
-                        .HasFilter("[DealName] IS NOT NULL");
 
                     b.HasIndex("FkCompanyId");
 
@@ -484,33 +480,6 @@ namespace FlowCRM.Migrations
                         .IsUnique();
 
                     b.ToTable("DealsStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            DealStatusId = new Guid("57913308-bef9-4a0a-9849-541d9e6c9fca"),
-                            StatusName = "New"
-                        },
-                        new
-                        {
-                            DealStatusId = new Guid("e2a73c53-0432-4353-82c7-79b5503dfe70"),
-                            StatusName = "In Progress"
-                        },
-                        new
-                        {
-                            DealStatusId = new Guid("750e4dac-eec3-4f6a-806e-ba037f68a635"),
-                            StatusName = "Closed Won"
-                        },
-                        new
-                        {
-                            DealStatusId = new Guid("b2cac70d-747b-4d7f-8881-650f3f5c8e2e"),
-                            StatusName = "Closed Lost"
-                        },
-                        new
-                        {
-                            DealStatusId = new Guid("221d676a-a921-4a0b-ac70-c0fd28d3628f"),
-                            StatusName = "On Hold"
-                        });
                 });
 
             modelBuilder.Entity("FlowCRM.Shared.Entities.Lead", b =>
@@ -581,22 +550,22 @@ namespace FlowCRM.Migrations
                     b.HasData(
                         new
                         {
-                            PriorityId = new Guid("2dc429d8-5766-45ef-855e-8fa81e8d0803"),
+                            PriorityId = new Guid("da8a688b-6302-487e-8843-e4f41384a247"),
                             PriorityName = "Low"
                         },
                         new
                         {
-                            PriorityId = new Guid("d8b9d728-fc51-40b5-9da0-8a21a4566711"),
+                            PriorityId = new Guid("02853e81-82c6-489d-a03d-57281724f131"),
                             PriorityName = "Medium"
                         },
                         new
                         {
-                            PriorityId = new Guid("5268a485-6490-4fb9-8095-8de6bfb9b65d"),
+                            PriorityId = new Guid("2fec1d2b-b41a-4ac6-9b64-6e3bbe64714e"),
                             PriorityName = "High"
                         },
                         new
                         {
-                            PriorityId = new Guid("40b3ab77-6145-4cc9-9c7a-5fbff41f15ee"),
+                            PriorityId = new Guid("d42caed6-a980-44f9-b0b2-28e782c19452"),
                             PriorityName = "Urgent"
                         });
                 });

@@ -10,6 +10,7 @@ namespace FlowCRM.Shared.Entities
 		public class Deal
 		{
 				public Guid DealId { get; set; }
+				public string? DealName { get; set; }
 				public Guid? FkCustomerId { get; set; }
 				public Guid? FkCompanyId { get; set; }
 				public required decimal DealAmount { get; set; }
@@ -17,8 +18,8 @@ namespace FlowCRM.Shared.Entities
 				public required Guid FkPriorityId { get; set; }
 				public DateTime? CreatedAt { get; set; }
 				public DateTime? UpdatedAt { get; set; }
-				public Guid? CreatedBy { get; set; }
-				public Guid? UpdatedBy { get; set; }
+				public string? CreatedBy { get; set; }
+				public string? UpdatedBy { get; set; }
 
 				// Navigation properties
 				public ICollection<Activity>? Activities { get; set; }

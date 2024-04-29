@@ -1,0 +1,69 @@
+﻿@page "/companies"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>Companies</PageTitle>
+<h1>Companies</h1>
+<p>This is the companies overview page.</p>
+
+@if (companies.Count == 0)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var companie in companies)
+            {
+                <tr>
+                    <td>@companie.CompanyName</td>
+                    <td>@companie.CompanyAddress</td>
+                    <td>@companie.CompanyEmailAddress</td>
+                    <td>@companie.CompanyPhoneNumber</td>
+                    <td>@companie.City</td>
+                    <td>@companie.Country</td>
+                    <td>
+                        <div class="hstack gap-2">
+                            <i class="oi oi-pencil text-info"></i>
+                            <i class="oi oi-trash text-danger"></i>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Company> companies = new List<Company>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await CompanyService.GetCompaniesAsync();
+        companies.Clear();
+
+        if (result == null)
+        {
+            return;
+        }
+
+        foreach (var company in result)
+        {
+            companies.Add(company);
+        }
+    }
+}

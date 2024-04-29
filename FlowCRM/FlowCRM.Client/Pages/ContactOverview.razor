@@ -1,0 +1,73 @@
+﻿@page "/contacts"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>Contacts</PageTitle>
+<h1>Contacts</h1>
+<p>This is the contacts overview page.</p>
+
+@if (contacts.Count == 0)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var contact in contacts)
+            {
+                <tr>
+                    <td>@contact.FirstName</td>
+                    <td>@contact.LastName</td>
+                    <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
+                    <td>@contact.Email</td>
+                    <td>@contact.PhoneNumber</td>
+                    <td>
+                        <div class="hstack gap-2">
+                            <i class="oi oi-pencil text-info"></i>
+                            <i class="oi oi-trash text-danger"></i>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Contact> contacts = new List<Contact>();
+    List<Company> companies = new List<Company>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var contactResult = await ContactService.GetContactsAsync();
+        var companyResult = await CompanyService.GetCompaniesAsync();
+        contacts.Clear();
+        companies.Clear();
+
+        if (contactResult == null)
+            return;
+
+        foreach (var contact in contactResult)
+        {
+            contacts.Add(contact);
+        }
+
+        foreach (var company in companyResult)
+        {
+            companies.Add(company);
+        }
+    }
+}

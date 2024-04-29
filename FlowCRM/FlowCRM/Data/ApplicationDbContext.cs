@@ -58,6 +58,7 @@ namespace FlowCRM.Data
             builder.Entity<Deal>(entity =>
             {
                 entity.HasKey(e => e.DealId);
+                entity.HasIndex(e => e.DealName).IsUnique();
                 entity.HasOne(e => e.Customers).WithMany(c => c.Deals).HasForeignKey(e => e.FkCustomerId);
                 entity.HasOne(e => e.Companies).WithMany(c => c.Deals).HasForeignKey(e => e.FkCompanyId);
                 entity.HasOne(e => e.Priorities).WithMany(p => p.Deals).HasForeignKey(e => e.FkPriorityId);
@@ -67,16 +68,16 @@ namespace FlowCRM.Data
 
             builder.Entity<DealStatus>(entity =>
             {
-								entity.HasKey(e => e.DealStatusId);
-								entity.HasIndex(e => e.StatusName).IsUnique();
-						});
+                entity.HasKey(e => e.DealStatusId);
+                entity.HasIndex(e => e.StatusName).IsUnique();
+            });
 
             builder.Entity<Lead>(entity =>
             {
-								entity.HasKey(e => e.LeadId);
-								entity.HasOne(e => e.Companies).WithMany(c => c.Leads).HasForeignKey(e => e.FkCompanyId);
+                entity.HasKey(e => e.LeadId);
+                entity.HasOne(e => e.Companies).WithMany(c => c.Leads).HasForeignKey(e => e.FkCompanyId);
                 entity.HasOne(e => e.Priorities).WithMany(p => p.Leads).HasForeignKey(e => e.FkPriorityId);
-						});
+            });
 
             builder.Entity<Priority>(entity =>
             {
@@ -98,17 +99,86 @@ namespace FlowCRM.Data
                 CreatedAt = DateTime.Now
             },
             new Customer
-						{
-								CustomerId = Guid.NewGuid(),
-								FirstName = "Maria",
-								LastName = "Rosa",
-								Email = "maria.rosa@example.com",
-								PhoneNumber = "123456780",
-								City = "California",
-								Country = "USA",
-								CreatedAt = DateTime.Now
-						});
-				}
+            {
+                CustomerId = Guid.NewGuid(),
+                FirstName = "Maria",
+                LastName = "Rosa",
+                Email = "maria.rosa@example.com",
+                PhoneNumber = "123456780",
+                City = "California",
+                Country = "USA",
+                CreatedAt = DateTime.Now
+            });
+
+            builder.Entity<Company>().HasData(
+            new Company
+            {
+                CompanyId = Guid.NewGuid(),
+                CompanyName = "Microsoft",
+                CompanyAddress = "Redmond, Washington",
+                CompanyEmailAddress = "microsoft.example@example.com",
+                CompanyPhoneNumber = "123456789",
+                City = "Redmond",
+                Country = "USA",
+                CreatedAt = DateTime.Now
+            },
+            new Company
+            {
+                CompanyId = Guid.NewGuid(),
+                CompanyName = "Apple",
+                CompanyAddress = "Cupertino, California",
+                CompanyEmailAddress = "apple.example@example.com",
+                CompanyPhoneNumber = "123456780",
+                City = "Cupertino",
+                Country = "USA",
+                CreatedAt = DateTime.Now
+            });
+
+            builder.Entity<Contact>().HasData(
+            new Contact
+            {
+                ContactId = Guid.NewGuid(),
+                FirstName = "Anna",
+                LastName = "Banana",
+                Email = "anna.banana@example.com",
+                PhoneNumber = "123456789",
+                CreatedAt = DateTime.Now
+            });
+
+            var activityTypes = new[] { "Call", "Meeting", "Email", "Task", "Note", "Other", "Follow-up", "Demo", "Presentation", "Training", "Webinar", "Workshop" };
+
+            foreach (var typeName in activityTypes)
+            {
+                builder.Entity<ActivityType>().HasData(new ActivityType
+                {
+                    ActivityTypeId = Guid.NewGuid(),
+                    TypeName = typeName
+                });
+            }
+
+            var priorities = new[] { "Low", "Medium", "High", "Urgent" };
+
+            foreach (var priorityName in priorities)
+            {
+                builder.Entity<Priority>().HasData(new Priority
+                {
+                    PriorityId = Guid.NewGuid(),
+                    PriorityName = priorityName
+                });
+            }
+
+            var dealStatuses = new[] { "New", "In Progress", "Closed Won", "Closed Lost", "On Hold" };
+
+            foreach (var statusName in dealStatuses)
+            {
+                builder.Entity<DealStatus>().HasData(new DealStatus
+                {
+                    DealStatusId = Guid.NewGuid(),
+                    StatusName = statusName
+                });
+            }
+
+        }
     }
 
 }

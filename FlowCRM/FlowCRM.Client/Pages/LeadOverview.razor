@@ -1,0 +1,77 @@
+﻿@page "/leads"
+@inject HttpClient Http
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<PageTitle>Leads</PageTitle>
+<h1>Leads</h1>
+<p>This is the leads overview page.</p>
+
+@if (leads.Count == 0)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Priority</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in leads)
+        {
+            <tr>
+                <td>@contact.FirstName</td>
+                <td>@contact.LastName</td>
+                <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
+                <td>@contact.Email</td>
+                <td>@contact.PhoneNumber</td>
+                <td>@priorities.FirstOrDefault(p => p.PriorityId == contact.FkPriorityId)?.PriorityName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+@code {
+    List<Lead> leads = new List<Lead>();
+    List<Company> companies = new List<Company>();
+    List<Priority> priorities = new List<Priority>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var leadResult = await LeadService.GetLeadsAsync();
+        var companyResult = await CompanyService.GetCompaniesAsync();
+        var priorityResult = await PriorityService.GetPrioritiesAsync();
+
+        leads.Clear();
+        companies.Clear();
+        priorities.Clear();
+
+        if (leadResult == null)
+            return;
+
+        foreach (var lead in leadResult)
+        {
+            leads.Add(lead);
+        }
+
+        foreach (var company in companyResult)
+        {
+            companies.Add(company);
+        }
+
+        foreach (var priority in priorityResult)
+        {
+            priorities.Add(priority);
+        }
+    }
+}
