@@ -8,6 +8,6 @@ namespace FlowCRM.Shared.Repositories
 		Task<Lead> GetLeadAsync(Guid id);
 		Task<Lead> AddLeadAsync(Lead lead);
 		Task<Lead> UpdateLeadAsync(Lead lead);
-		Task DeleteLeadAsync(Guid id);
+		Task<Lead> DeleteLeadAsync(Guid id);
 	}
 }

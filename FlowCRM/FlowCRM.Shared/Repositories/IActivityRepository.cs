@@ -8,6 +8,6 @@ namespace FlowCRM.Shared.Repositories
 		Task<Activity> GetActivityAsync(Guid id);
 		Task<Activity> AddActivityAsync(Activity activity);
 		Task<Activity> UpdateActivityAsync(Activity activity);
-		Task DeleteActivityAsync(Guid id);
+		Task<Activity> DeleteActivityAsync(Guid id);
 	}
 }
