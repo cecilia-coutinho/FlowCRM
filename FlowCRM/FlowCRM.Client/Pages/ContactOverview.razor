@@ -6,34 +6,44 @@
 <h1>Contacts</h1>
 <p>This is the contacts overview page.</p>
 
-@if(contacts.Count == 0) {
-    <p>Loading...</p>
+@if (contacts.Count == 0)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
 }
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Company</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var contact in contacts)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>@contact.FirstName</td>
-                <td>@contact.LastName</td>
-                <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
-                <td>@contact.Email</td>
-                <td>@contact.PhoneNumber</td>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var contact in contacts)
+            {
+                <tr>
+                    <td>@contact.FirstName</td>
+                    <td>@contact.LastName</td>
+                    <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
+                    <td>@contact.Email</td>
+                    <td>@contact.PhoneNumber</td>
+                    <td>
+                        <div class="hstack gap-2">
+                            <i class="oi oi-pencil text-info"></i>
+                            <i class="oi oi-trash text-danger"></i>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
@@ -42,13 +52,22 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var contactResult = await Http.GetFromJsonAsync<List<Contact>>("/api/contacts");
-        var companyResult = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
+        var contactResult = await ContactService.GetContactsAsync();
+        var companyResult = await CompanyService.GetCompaniesAsync();
+        contacts.Clear();
+        companies.Clear();
 
-        if (contactResult != null)
-        contacts = contactResult;
+        if (contactResult == null)
+            return;
 
-        if (companyResult != null)
-        companies = companyResult;
+        foreach (var contact in contactResult)
+        {
+            contacts.Add(contact);
+        }
+
+        foreach (var company in companyResult)
+        {
+            companies.Add(company);
+        }
     }
 }

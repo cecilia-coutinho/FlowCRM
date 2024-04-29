@@ -6,36 +6,46 @@
 <h1>Companies</h1>
 <p>This is the companies overview page.</p>
 
-@if(companies.Count == 0) {
-    <p>Loading...</p>
+@if (companies.Count == 0)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
 }
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>Company Name</th>
-            <th>Address</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-            <th>City</th>
-            <th>Country</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var companie in companies)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>@companie.CompanyName</td>
-                <td>@companie.CompanyAddress</td>
-                <td>@companie.CompanyEmailAddress</td>
-                <td>@companie.CompanyPhoneNumber</td>
-                <td>@companie.City</td>
-                <td>@companie.Country</td>
+                <th>Company Name</th>
+                <th>Address</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var companie in companies)
+            {
+                <tr>
+                    <td>@companie.CompanyName</td>
+                    <td>@companie.CompanyAddress</td>
+                    <td>@companie.CompanyEmailAddress</td>
+                    <td>@companie.CompanyPhoneNumber</td>
+                    <td>@companie.City</td>
+                    <td>@companie.Country</td>
+                    <td>
+                        <div class="hstack gap-2">
+                            <i class="oi oi-pencil text-info"></i>
+                            <i class="oi oi-trash text-danger"></i>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
@@ -43,11 +53,17 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        //await Task.Delay(500);
+        var result = await CompanyService.GetCompaniesAsync();
+        companies.Clear();
 
-        var result = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
-        if (result != null)
-        companies = result;
+        if (result == null)
+        {
+            return;
+        }
+
+        foreach (var company in result)
+        {
+            companies.Add(company);
+        }
     }
 }

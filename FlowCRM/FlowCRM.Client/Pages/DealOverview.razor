@@ -6,28 +6,45 @@
 <h1>Deals</h1>
 <p>This is the deals overview page.</p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Customer</th>
-            <th>Company</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Priority</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var deal in deals)
-        {
+
+@if (deals.Count == 0)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
             <tr>
-                <td>@customers.FirstOrDefault(c => c.CustomerId == deal.FkCompanyId)?.FirstName + ' ' + @customers.FirstOrDefault(c => c.CustomerId == deal.FkCompanyId)?.LastName</td>
-                <td>@companies.FirstOrDefault(c => c.CompanyId == deal.FkCompanyId)?.CompanyName</td>
-                <td>@dealStatus.FirstOrDefault(ds => ds.DealStatusId == deal.FkDealStatusId)?.StatusName</td>
-                <td>@priority.FirstOrDefault(p => p.PriorityId == deal.FkPriorityId)?.PriorityName</td>
+                <th>Customer</th>
+                <th>Company</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var deal in deals)
+            {
+                <tr>
+                    <td>@customers.FirstOrDefault(c => c.CustomerId == deal.FkCompanyId)?.FirstName + ' ' + @customers.FirstOrDefault(c => c.CustomerId == deal.FkCompanyId)?.LastName</td>
+                    <td>@companies.FirstOrDefault(c => c.CompanyId == deal.FkCompanyId)?.CompanyName</td>
+                    <td>@dealStatus.FirstOrDefault(ds => ds.DealStatusId == deal.FkDealStatusId)?.StatusName</td>
+                    <td>@priority.FirstOrDefault(p => p.PriorityId == deal.FkPriorityId)?.PriorityName</td>
+                    <td>
+                        <div class="hstack gap-2">
+                            <i class="oi oi-pencil text-info"></i>
+                            <i class="oi oi-trash text-danger"></i>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 
 @code {
@@ -39,25 +56,44 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var dealResult = await Http.GetFromJsonAsync<List<Deal>>("/api/deals");
-        var customerResult = await Http.GetFromJsonAsync<List<Customer>>("/api/customers");
-        var companyResult = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
-        var dealStatusResult = await Http.GetFromJsonAsync<List<DealStatus>>("/api/dealstatus");
-        var priorityResult = await Http.GetFromJsonAsync<List<Priority>>("/api/priority");
+        var dealResult = await DealService.GetDealsAsync();
+        var customerResult = await CustomerService.GetCustomersAsync();
+        var companyResult = await CompanyService.GetCompaniesAsync();
+        var dealStatusResult = await DealStatusService.GetDealStatusesAsync();
+        var priorityResult = await PriorityService.GetPrioritiesAsync();
 
-        if (dealResult != null)
-        deals = dealResult;
+        deals.Clear();
+        customers.Clear();
+        companies.Clear();
+        dealStatus.Clear();
+        priority.Clear();
 
-        if (companyResult != null)
-        companies = companyResult;
+        if (dealResult == null)
+            return;
 
-        if (customerResult != null)
-        customers = customerResult;
+        foreach (var deal in dealResult)
+        {
+            deals.Add(deal);
+        }
 
-        if (dealStatusResult != null)
-        dealStatus = dealStatusResult;
+        foreach (var customer in customerResult)
+        {
+            customers.Add(customer);
+        }
 
-        if (priorityResult != null)
-        priority = priorityResult;
+        foreach (var company in companyResult)
+        {
+            companies.Add(company);
+        }
+
+        foreach (var status in dealStatusResult)
+        {
+            dealStatus.Add(status);
+        }
+
+        foreach (var p in priorityResult)
+        {
+            priority.Add(p);
+        }
     }
 }

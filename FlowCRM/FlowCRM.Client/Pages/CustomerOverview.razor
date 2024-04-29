@@ -59,7 +59,7 @@ else
 	protected override async Task OnInitializedAsync()
 	{
 		var result = await CustomerService.GetCustomersAsync();
-		customers.Clear();
+		//customers.Clear();
 		if (result == null)
 			return;
 

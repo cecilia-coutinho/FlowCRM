@@ -2,53 +2,67 @@
 @inject HttpClient Http
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
-<PageTitle>Contacts</PageTitle>
-<h1>Contacts</h1>
-<p>This is the contacts overview page.</p>
+<PageTitle>Activities</PageTitle>
+<h1>Activities</h1>
+<p>This is the activities overview page.</p>
 
-@if(contacts.Count == 0) {
-    <p>Loading...</p>
+@if (activities.Count == 0)
+{
+	<p>Loading...</p>
 }
 else
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Company</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var contact in contacts)
-        {
-            <tr>
-                <td>@contact.FirstName</td>
-                <td>@contact.LastName</td>
-                <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
-                <td>@contact.Email</td>
-                <td>@contact.PhoneNumber</td>
-            </tr>
-        }
-    </tbody>
-</table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Deal</th>
+				<th>Type</th>
+				<th>Note</th>
+				<th>Date</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var activity in activities)
+			{
+				<tr>
+					<td>@deals.FirstOrDefault(d => d.DealId == activity.FkDealId)?.DealName</td>
+					<td>@activityTypes.FirstOrDefault(at => at.ActivityTypeId == activity.FkActivityTypeId)?.TypeName</td>
+					<td>@activity.ActivityNote</td>
+					<td>@activity.ActivityDate.ToShortDateString()</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 }
 
 @code {
-    List<Contact> contacts = new List<Contact>();
-    List<Company> companies = new List<Company>();
+	List<Activity> activities = new List<Activity>();
+	List<Deal> deals = new List<Deal>();
+	List<ActivityType> activityTypes = new List<ActivityType>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        var contactResult = await Http.GetFromJsonAsync<List<Contact>>("/api/contacts");
-        var companyResult = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
+	protected override async Task OnInitializedAsync()
+	{
+		var activityResult = await ActivityService.GetActivitiesAsync();
+		var dealResult = await DealService.GetDealsAsync();
+		var activityTypeResult = await ActivityTypeService.GetActivitiesTypeAsync();
 
-        if (contactResult != null)
-        contacts = contactResult;
+		activities.Clear();
+		deals.Clear();
+		activityTypes.Clear();
 
-        if (companyResult != null)
-        companies = companyResult;
-    }
+		foreach (var activity in activityResult)
+		{
+			activities.Add(activity);
+		}
+
+		foreach (var deal in dealResult)
+		{
+			deals.Add(deal);
+		}
+
+		foreach (var activityType in activityTypeResult)
+		{
+			activityTypes.Add(activityType);
+		}
+	}
 }

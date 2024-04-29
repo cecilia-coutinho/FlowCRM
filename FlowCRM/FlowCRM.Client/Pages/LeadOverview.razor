@@ -6,6 +6,14 @@
 <h1>Leads</h1>
 <p>This is the leads overview page.</p>
 
+@if (leads.Count == 0)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else
+{
 <table class="table">
     <thead>
         <tr>
@@ -31,6 +39,7 @@
         }
     </tbody>
 </table>
+}
 
 @code {
     List<Lead> leads = new List<Lead>();
@@ -39,17 +48,30 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var leadResult = await Http.GetFromJsonAsync<List<Lead>>("/api/leads");
-        var companyResult = await Http.GetFromJsonAsync<List<Company>>("/api/companies");
-        var priorityResult = await Http.GetFromJsonAsync<List<Priority>>("/api/priorities");
+        var leadResult = await LeadService.GetLeadsAsync();
+        var companyResult = await CompanyService.GetCompaniesAsync();
+        var priorityResult = await PriorityService.GetPrioritiesAsync();
 
-        if (leadResult != null)
-        leads = leadResult;
+        leads.Clear();
+        companies.Clear();
+        priorities.Clear();
 
-        if (companyResult != null)
-        companies = companyResult;
+        if (leadResult == null)
+            return;
 
-        if (priorityResult != null)
-        priorities = priorityResult;
+        foreach (var lead in leadResult)
+        {
+            leads.Add(lead);
+        }
+
+        foreach (var company in companyResult)
+        {
+            companies.Add(company);
+        }
+
+        foreach (var priority in priorityResult)
+        {
+            priorities.Add(priority);
+        }
     }
 }
