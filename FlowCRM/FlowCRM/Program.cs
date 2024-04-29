@@ -30,6 +30,15 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingServerAuthenticationStateProvider>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IContactRepository, ContactRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IDealRepository, DealRepository>();
+builder.Services.AddScoped<IDealStatusRepository, DealStatusRepository>();
+builder.Services.AddScoped<ILeadRepository, LeadRepository>();
+builder.Services.AddScoped<IActivityTypeRepository, ActivityTypeRepository>();
+builder.Services.AddScoped<IPriorityRepository, PriorityRepository>();
+
 
 builder.Services.AddScoped(http => new HttpClient
 {

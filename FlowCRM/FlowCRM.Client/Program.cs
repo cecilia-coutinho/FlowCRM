@@ -16,5 +16,13 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped<ICustomerRepository, CustomerService>();
+builder.Services.AddScoped<IActivityRepository, ActivityService>();
+builder.Services.AddScoped<IContactRepository, ContactService>();
+builder.Services.AddScoped<ICompanyRepository, CompanyService>();
+builder.Services.AddScoped<IDealRepository, DealService>();
+builder.Services.AddScoped<IDealStatusRepository, DealStatusService>();
+builder.Services.AddScoped<ILeadRepository, LeadService>();
+builder.Services.AddScoped<IActivityTypeRepository, ActivityTypeService>();
+builder.Services.AddScoped<IPriorityRepository, PriorityService>();
 
 await builder.Build().RunAsync();
