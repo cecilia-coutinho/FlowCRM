@@ -1,68 +1,108 @@
-﻿using FlowCRM.Data;
-using FlowCRM.Shared.Entities;
-using FlowCRM.Shared.Repositories;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+using FlowCRM.Data;
+using FlowCRM.Shared.Entities;
 
 namespace FlowCRM.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class DealsController : ControllerBase
-	{
-		private readonly IDealRepository _dealRepository;
+    [Route("api/[controller]")]
+    [ApiController]
+    public class DealsController : ControllerBase
+    {
+        private readonly ApplicationDbContext _context;
 
-		public DealsController(IDealRepository dealRepository)
-		{
-			_dealRepository = dealRepository;
-		}
+        public DealsController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
-		// GET: api/Deals/All-Deals
-		[HttpGet("All-Deals")]
-		public async Task<ActionResult<IEnumerable<Deal>>> GetDeals()
-		{
-			var deals = await _dealRepository.GetDealsAsync();
-			return Ok(deals);
-		}
+        // GET: api/Deals
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Deal>>> GetDeals()
+        {
+            return await _context.Deals.ToListAsync();
+        }
 
-		// GET: api/Deals/Single-Deal/5
-		[HttpGet("Single-Deal/{id}")]
-		public async Task<ActionResult<Deal>> GetDeal(Guid id)
-		{
-			var deal = await _dealRepository.GetDealAsync(id);
-			return deal;
-		}
+        // GET: api/Deals/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Deal>> GetDeal(Guid id)
+        {
+            var deal = await _context.Deals.FindAsync(id);
 
-		// POST: api/Deals/Add-Deal
-		[HttpPost("Add-Deal")]
-		public async Task<ActionResult<Deal>> PostDeal(Deal deal)
-		{
-			string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			deal.CreatedBy = userId;
+            if (deal == null)
+            {
+                return NotFound();
+            }
 
-			var newDeal = await _dealRepository.AddDealAsync(deal);
-			return CreatedAtAction("GetDeal", new { id = newDeal.DealId }, newDeal);
-		}
+            return deal;
+        }
 
-		// PUT: api/Deals/Update-Deal
-		[HttpPut("Update-Deal")]
-		public async Task<IActionResult> PutDeal(Deal deal)
-		{
-			string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			deal.UpdatedBy = userId;
+        // PUT: api/Deals/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutDeal(Guid id, Deal deal)
+        {
+            if (id != deal.DealId)
+            {
+                return BadRequest();
+            }
 
-			var updatedDeal = await _dealRepository.UpdateDealAsync(deal);
-			return Ok(updatedDeal);
-		}
+            _context.Entry(deal).State = EntityState.Modified;
 
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DealExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-		// DELETE: api/Deals/5
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteDeal(Guid id)
-		{
-			var deal = await _dealRepository.DeleteDealAsync(id);
-			return Ok(deal);
-		}
-	}
+            return NoContent();
+        }
+
+        // POST: api/Deals
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Deal>> PostDeal(Deal deal)
+        {
+            _context.Deals.Add(deal);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetDeal", new { id = deal.DealId }, deal);
+        }
+
+        // DELETE: api/Deals/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteDeal(Guid id)
+        {
+            var deal = await _context.Deals.FindAsync(id);
+            if (deal == null)
+            {
+                return NotFound();
+            }
+
+            _context.Deals.Remove(deal);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool DealExists(Guid id)
+        {
+            return _context.Deals.Any(e => e.DealId == id);
+        }
+    }
 }

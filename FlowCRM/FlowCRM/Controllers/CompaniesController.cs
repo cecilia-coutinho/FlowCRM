@@ -1,69 +1,108 @@
-﻿using FlowCRM.Data;
-using FlowCRM.Shared.Entities;
-using FlowCRM.Shared.Repositories;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+using FlowCRM.Data;
+using FlowCRM.Shared.Entities;
 
 namespace FlowCRM.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class CompaniesController : ControllerBase
-	{
-		private readonly ICompanyRepository _companyRepository;
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CompaniesController : ControllerBase
+    {
+        private readonly ApplicationDbContext _context;
 
-		public CompaniesController(ICompanyRepository companyRepository)
-		{
-			_companyRepository = companyRepository;
-		}
+        public CompaniesController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
-		// GET: api/Companies/All-Companies
-		[HttpGet("All-Companies")]
-		public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
-		{
-			var companies = await _companyRepository.GetCompaniesAsync();
-			return Ok(companies);
-		}
+        // GET: api/Companies
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
+        {
+            return await _context.Companies.ToListAsync();
+        }
 
-		// GET: api/Companies/Single-Company/5
-		[HttpGet("Single-Company/{id}")]
-		public async Task<ActionResult<Company>> GetCompany(Guid id)
-		{
-			var company = await _companyRepository.GetCompanyAsync(id);
-			return Ok(company);
-		}
+        // GET: api/Companies/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Company>> GetCompany(Guid id)
+        {
+            var company = await _context.Companies.FindAsync(id);
 
-		// POST: api/Companies/Add-Company
-		[HttpPost("Add-Company")]
-		public async Task<ActionResult<Company>> PostCompany(Company company)
-		{
-			string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			company.CreatedBy = userId;
+            if (company == null)
+            {
+                return NotFound();
+            }
 
-			var newCompany = await _companyRepository.AddCompanyAsync(company);
-			return CreatedAtAction("GetCompany", new { id = newCompany.CompanyId }, newCompany);
-		}
+            return company;
+        }
 
-		// PUT: api/Companies/Update-Company
-		[HttpPut("Update-Company")]
-		public async Task<IActionResult> PutCompany(Company company)
-		{
-			string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			company.UpdatedBy = userId;
+        // PUT: api/Companies/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCompany(Guid id, Company company)
+        {
+            if (id != company.CompanyId)
+            {
+                return BadRequest();
+            }
 
-			var updatedCompany = await _companyRepository.UpdateCompanyAsync(company);
+            _context.Entry(company).State = EntityState.Modified;
 
-			return Ok(updatedCompany);
-		}
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CompanyExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-		// DELETE: api/Companies/5
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteCompany(Guid id)
-		{
-			var company = await _companyRepository.DeleteCompanyAsync(id);
+            return NoContent();
+        }
 
-			return Ok(company);
-		}
-	}
+        // POST: api/Companies
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Company>> PostCompany(Company company)
+        {
+            _context.Companies.Add(company);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCompany", new { id = company.CompanyId }, company);
+        }
+
+        // DELETE: api/Companies/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCompany(Guid id)
+        {
+            var company = await _context.Companies.FindAsync(id);
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            _context.Companies.Remove(company);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool CompanyExists(Guid id)
+        {
+            return _context.Companies.Any(e => e.CompanyId == id);
+        }
+    }
 }
