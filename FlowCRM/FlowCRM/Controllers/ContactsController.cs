@@ -1,108 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using FlowCRM.Data;
+using FlowCRM.Shared.Entities;
+using FlowCRM.Shared.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FlowCRM.Data;
-using FlowCRM.Shared.Entities;
+using System.Security.Claims;
 
 namespace FlowCRM.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ContactsController : ControllerBase
-    {
-        private readonly ApplicationDbContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class ContactsController : ControllerBase
+	{
+		private readonly IContactRepository _contactRepository;
 
-        public ContactsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+		public ContactsController(IContactRepository contactRepository)
+		{
+			_contactRepository = contactRepository;
+		}
 
-        // GET: api/Contacts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
-        {
-            return await _context.Contacts.ToListAsync();
-        }
+		// GET: api/Contacts/All-Contacts
+		[HttpGet("All-Contacts")]
+		public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
+		{
+			var contacts = await _contactRepository.GetContactsAsync();
+			return Ok(contacts);
+		}
 
-        // GET: api/Contacts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Contact>> GetContact(Guid id)
-        {
-            var contact = await _context.Contacts.FindAsync(id);
+		// GET: api/Contacts/Single-Contact/5
+		[HttpGet("Single-Contact/{id}")]
+		public async Task<ActionResult<Contact>> GetContact(Guid id)
+		{
+			var contact = await _contactRepository.GetContactAsync(id);
+			return Ok(contact);
+		}
+		// POST: api/Contacts/Add-Contact
+		[HttpPost("Add-Contact")]
+		public async Task<ActionResult<Contact>> PostContact(Contact contact)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			contact.CreatedBy = userId;
 
-            if (contact == null)
-            {
-                return NotFound();
-            }
+			var newContact = await _contactRepository.AddContactAsync(contact);
+			return CreatedAtAction("GetContact", new { id = newContact.ContactId }, newContact);
+		}
 
-            return contact;
-        }
+		// PUT: api/Contacts/Update-Contact
+		[HttpPut("Update-Contact")]
+		public async Task<IActionResult> PutContact(Contact contact)
+		{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			contact.UpdatedBy = userId;
 
-        // PUT: api/Contacts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutContact(Guid id, Contact contact)
-        {
-            if (id != contact.ContactId)
-            {
-                return BadRequest();
-            }
+			var updatedContact = await _contactRepository.UpdateContactAsync(contact);
 
-            _context.Entry(contact).State = EntityState.Modified;
+			return Ok(updatedContact);
+		}
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ContactExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
-        }
-
-        // POST: api/Contacts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Contact>> PostContact(Contact contact)
-        {
-            _context.Contacts.Add(contact);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetContact", new { id = contact.ContactId }, contact);
-        }
-
-        // DELETE: api/Contacts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteContact(Guid id)
-        {
-            var contact = await _context.Contacts.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound();
-            }
-
-            _context.Contacts.Remove(contact);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ContactExists(Guid id)
-        {
-            return _context.Contacts.Any(e => e.ContactId == id);
-        }
-    }
+		// DELETE: api/Contacts/5
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteContact(Guid id)
+		{
+			var contact = await _contactRepository.DeleteContactAsync(id);
+			return Ok(contact);
+		}
+	}
 }

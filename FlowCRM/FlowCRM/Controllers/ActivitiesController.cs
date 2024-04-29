@@ -1,108 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using FlowCRM.Shared.Entities;
+using FlowCRM.Shared.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FlowCRM.Data;
-using FlowCRM.Shared.Entities;
+using System.Security.Claims;
 
 namespace FlowCRM.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ActivitiesController : ControllerBase
-    {
-        private readonly ApplicationDbContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class ActivitiesController : ControllerBase
+	{
+		private readonly IActivityRepository _activityRepository;
 
-        public ActivitiesController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+		public ActivitiesController(IActivityRepository activityRepository)
+		{
+			_activityRepository = activityRepository;
+		}
 
-        // GET: api/Activities
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
-        {
-            return await _context.Activities.ToListAsync();
-        }
+		// GET: api/Activities/All-Activities
+		[HttpGet("All-Activities")]
+		public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
+		{
+			var activities = await _activityRepository.GetActivitiesAsync();
+			return Ok(activities);
+		}
 
-        // GET: api/Activities/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Activity>> GetActivity(Guid id)
-        {
-            var activity = await _context.Activities.FindAsync(id);
+		// GET: api/Activities/Single-Activity/5
+		[HttpGet("Single-Activity/{id}")]
+		public async Task<ActionResult<Activity>> GetActivity(Guid id)
+		{
+			var activity = await _activityRepository.GetActivityAsync(id);
+			return Ok(activity);
+		}
 
-            if (activity == null)
-            {
-                return NotFound();
-            }
+		// POST: api/Activities/Add-Activity
+		[HttpPost("Add-Activity")]
+		public async Task<ActionResult<Activity>> PostActivity(Activity activity)
+		{
+			string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			activity.CreatedBy = userId;
 
-            return activity;
-        }
+			var newActivity = await _activityRepository.AddActivityAsync(activity);
+			return CreatedAtAction("GetActivity", new { id = newActivity.ActivityId }, newActivity);
+		}
 
-        // PUT: api/Activities/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutActivity(Guid id, Activity activity)
-        {
-            if (id != activity.ActivityId)
-            {
-                return BadRequest();
-            }
+		// PUT: api/Activities/Update-Activity
+		[HttpPut("Update-Activity")]
+		public async Task<IActionResult> PutActivity(Activity activity)
+		{
+			string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			activity.UpdatedBy = userId;
 
-            _context.Entry(activity).State = EntityState.Modified;
+			var updatedActivity = await _activityRepository.UpdateActivityAsync(activity);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ActivityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			return Ok(updatedActivity);
+		}
 
-            return NoContent();
-        }
 
-        // POST: api/Activities
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Activity>> PostActivity(Activity activity)
-        {
-            _context.Activities.Add(activity);
-            await _context.SaveChangesAsync();
+		// DELETE: api/Activities/5
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteActivity(Guid id)
+		{
+			var activity = await _activityRepository.DeleteActivityAsync(id);
 
-            return CreatedAtAction("GetActivity", new { id = activity.ActivityId }, activity);
-        }
-
-        // DELETE: api/Activities/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteActivity(Guid id)
-        {
-            var activity = await _context.Activities.FindAsync(id);
-            if (activity == null)
-            {
-                return NotFound();
-            }
-
-            _context.Activities.Remove(activity);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ActivityExists(Guid id)
-        {
-            return _context.Activities.Any(e => e.ActivityId == id);
-        }
-    }
+			return Ok(activity);
+		}
+	}
 }
