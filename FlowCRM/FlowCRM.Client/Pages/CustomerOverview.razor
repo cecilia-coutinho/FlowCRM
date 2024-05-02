@@ -4,68 +4,176 @@
 <PageTitle>Customers</PageTitle>
 <h1>Customers</h1>
 <p>This is the customer overview page.</p>
+<button class="btn btn-primary" @onclick="NavigateToAddCustomerPage">
+    <i class="bi bi-person-plus"></i> Add Customer
+</button>
 
-@if (customers.Count == 0)
-{
-	<div class="spinner-border text-primary" role="status">
-		<span class="visually-hidden">Loading...</span>
-	</div>
-}
-@* @if (customers.Count <= 0)
-{
-	<div class="alert alert-info">
-		<p>There are currently no customers in the database. Please check back later or add a new customer.</p>
-	</div>
-} *@
-else
-{
-	<table class="table">
-		<thead>
-			<tr>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Email</th>
-				<th>Phone Number</th>
-				<th>City</th>
-				<th>Country</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var customer in customers)
-			{
-				<tr>
-					<td>@customer.FirstName</td>
-					<td>@customer.LastName</td>
-					<td>@customer.Email</td>
-					<td>@customer.PhoneNumber</td>
-					<td>@customer.City</td>
-					<td>@customer.Country</td>
-					<td>
-						<div class="hstack gap-2">
-							<i class="oi oi-pencil text-info"></i>
-							<i class="oi oi-trash text-danger"></i>
-						</div>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (customers is not null)
+        {
+            int count = 1;
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <th scope="row">@count</th>
+                    <td>@customer.FirstName</td>
+                    <td>@customer.LastName</td>
+                    <td>@customer.Email</td>
+                    <td>@customer.PhoneNumber</td>
+                    <td>@customer.City</td>
+                    <td>@customer.Country</td>
+                    <td>
+                        <div class="hstack gap-2">
+                            <button class="btn btn-secondary" @onclick="()=>DetailsCustomer(customer.CustomerId)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            @if (IsModalVisible)
+                            {
+                                <div class="modal" tabindex="-1" style="display:block">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Customer Details</h5>
+                                                <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form @onsubmit="EditCustomer">
+                                                    <div class="form-group mb-3">
+                                                        <label for="FirstName">First Name</label>
+                                                        <input type="text" class="form-control" id="FirstName" @bind="addedCustomer.FirstName">
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="LastName">Last Name</label>
+                                                        <input type="text" class="form-control" id="LastName" @bind="addedCustomer.LastName">
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="Email">Email</label>
+                                                        <input type="text" class="form-control" id="Email" @bind="addedCustomer.Email">
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="PhoneNumber">Phone Number</label>
+                                                        <input type="text" class="form-control" id="PhoneNumber" @bind="addedCustomer.PhoneNumber">
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="City">City</label>
+                                                        <input type="text" class="form-control" id="City" @bind="addedCustomer.City">
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label for="Country">Country</label>
+                                                        <input type="text" class="form-control" id="Country" @bind="addedCustomer.Country">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary mb-3">Save Changes</button>
+                                                </form>
+                                                @if (showUpdateSuccessMessage)
+                                                {
+                                                    <div class="alert alert-success mt-3">
+                                                        Customer updated successfully!
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @*
+
+                    <button class="btn btn-primary" @onclick="()=>EditCustomer(customer)">
+                    <i class="bi bi-pencil"></i>
+                    </button> *@
+                            <button class="btn btn-danger" @onclick="()=>DeleteCustomer(customer.CustomerId)">
+                                <i class=" bi bi-trash">
+                                </i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                count++;
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <p>There are currently no customers in the database. Please check back later or add a new customer.</p>
+            </div>
+        }
+    </tbody>
+</table>
+
 
 @code {
-	List<Customer> customers = new List<Customer>();
+    List<Customer> customers = new List<Customer>();
+    private bool IsModalVisible { get; set; }
+    private Customer addedCustomer = new();
+    private bool showUpdateSuccessMessage = false;
 
-	protected override async Task OnInitializedAsync()
-	{
-		var result = await CustomerService.GetCustomersAsync();
-		//customers.Clear();
-		if (result == null)
-			return;
+    private async Task LoadCustomers()
+    {
+        var result = await CustomerService.GetCustomersAsync();
+        customers.Clear();
+        if (result == null)
+            return;
 
-		foreach (var customer in result)
-		{
-			customers.Add(customer);
-		}
-	}
+        foreach (var customer in result)
+        {
+            customers.Add(customer);
+        }
+    }
+
+    private void NavigateToAddCustomerPage()
+    {
+        NavigationManager.NavigateTo("/add-customer");
+    }
+
+    private async Task DetailsCustomer(Guid customerId)
+    {
+        addedCustomer = await CustomerService.GetCustomerAsync(customerId);
+
+        IsModalVisible = true;
+    }
+
+    private async Task EditCustomer()
+    {
+        if (addedCustomer.CustomerId != Guid.Empty)
+        {
+            addedCustomer = await CustomerService.UpdateCustomerAsync(addedCustomer);
+            showUpdateSuccessMessage = true;
+            await LoadCustomers();
+        }
+    }
+
+
+    private async Task DeleteCustomer(Guid customerId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this customer?");
+        if (confirmed)
+        {
+            await CustomerService.DeleteCustomerAsync(customerId);
+            await LoadCustomers();
+        }
+    }
+
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+        showUpdateSuccessMessage = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomers();
+    }
 }
