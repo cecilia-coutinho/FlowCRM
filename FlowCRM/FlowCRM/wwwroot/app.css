@@ -49,3 +49,69 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+body {
+    font-family: 'Skeena', sans-serif;
+    background-color: #f2f2f2;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fira Sans Thin', sans-serif;
+    color: #5c5c5c;
+}
+
+p, .form-group label {
+    font-family: 'Chivo', sans-serif;
+    color: #5c5c5c;
+}
+
+.btn-primary {
+    background-color: #358df0;
+    border-color: #166fa3;
+}
+
+.btn-secondary {
+    background-color: #749b9c;
+    border-color: #5c5c5c;
+}
+
+.btn-danger {
+    background-color: #bd962b;
+    border-color: #5c5c5c;
+}
+
+.table {
+    color: #5c5c5c;
+}
+
+.modal-content {
+    background-color: #f2f2f2;
+}
+
+.alert-success {
+    background-color: #358df0;
+    color: #f2f2f2;
+}
+
+.alert-info {
+    background-color: #749b9c;
+    color: #f2f2f2;
+}
+
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
