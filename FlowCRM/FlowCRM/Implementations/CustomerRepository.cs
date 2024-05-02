@@ -53,16 +53,16 @@ namespace FlowCRM.Implementations
                 throw new Exception($"No customer found: {customer}");
             }
 
-            //existingCustomer.FirstName = customer.FirstName;
-            //existingCustomer.LastName = customer.LastName;
-            //existingCustomer.Email = customer.Email;
-            //existingCustomer.PhoneNumber = customer.PhoneNumber;
-            //existingCustomer.City = customer.City;
-            //existingCustomer.Country = customer.Country;
-            //existingCustomer.UpdatedAt = DateTime.Now;
-            //existingCustomer.UpdatedBy = customer.UpdatedBy;
+            existingCustomer.FirstName = customer.FirstName;
+            existingCustomer.LastName = customer.LastName;
+            existingCustomer.Email = customer.Email;
+            existingCustomer.PhoneNumber = customer.PhoneNumber;
+            existingCustomer.City = customer.City;
+            existingCustomer.Country = customer.Country;
+            existingCustomer.UpdatedAt = DateTime.Now;
+            existingCustomer.UpdatedBy = customer.UpdatedBy;
 
-            existingCustomer = customer;
+            //existingCustomer = customer;
             existingCustomer.UpdatedAt = DateTime.Now;
 
             _context.Entry(existingCustomer).State = EntityState.Modified;
