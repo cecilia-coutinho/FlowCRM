@@ -10,6 +10,7 @@
 @using Microsoft.JSInterop
 @using FlowCRM.Client
 @using FlowCRM.Shared.Entities
+@using FlowCRM.Client.Components
 
 @inject ICustomerRepository CustomerService
 @inject ICompanyRepository CompanyService
@@ -20,3 +21,5 @@
 @inject IActivityTypeRepository ActivityTypeService
 @inject IPriorityRepository PriorityService
 @inject IDealStatusRepository DealStatusService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
