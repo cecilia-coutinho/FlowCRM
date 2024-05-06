@@ -1,0 +1,37 @@
+﻿@typeparam TEntity
+
+<div>
+    <input class="form-control mb-3" style="max-width:600px" placeholder="Search..." @bind="searchItem" />
+    <button class="btn btn-primary mb-3" style="margin-right: 15px;" @onclick="OnSearchClicked">Search</button>
+    @if (!string.IsNullOrEmpty(searchItem))
+    {
+        <button class="btn btn-secondary mb-3" @onclick="ResetSearch">Reset</button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<TEntity>? Items { get; set; }
+
+    [Parameter]
+    public EventCallback<String> OnSearch { get; set; }
+
+    private string? searchItem;
+
+    private async Task OnSearchClicked()
+    {
+        if (OnSearch.HasDelegate)
+        {
+            await OnSearch.InvokeAsync(searchItem);
+        }
+    }
+
+    private async Task ResetSearch()
+    {
+        searchItem = string.Empty;
+        if (OnSearch.HasDelegate)
+        {
+            await OnSearch.InvokeAsync(searchItem);
+        }
+    }
+}

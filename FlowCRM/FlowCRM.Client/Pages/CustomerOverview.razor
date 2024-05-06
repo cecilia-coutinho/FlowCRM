@@ -4,10 +4,17 @@
 <PageTitle>Customers</PageTitle>
 <h1>Customers</h1>
 <p>This is the customer overview page.</p>
-<button class="btn btn-primary" @onclick='()=>OpenModal(new Customer(), "add")'>
-    <i class="bi bi-person-plus"></i> Add Customer
-</button>
 
+<div>
+    <SearchBox Items="filteredCustomers" OnSearch="UpdateFilteredCustomers">
+    </SearchBox>
+</div>
+
+<div>
+    <button class="btn btn-primary" @onclick='()=>OpenModal(new Customer(), "add")'>
+        <i class="bi bi-person-plus"></i> Add Customer
+    </button>
+</div>
 
 <table class="table">
     <thead>
@@ -21,10 +28,10 @@
         </tr>
     </thead>
     <tbody>
-        @if (customers is not null)
+        @if (filteredCustomers is not null)
         {
             int count = 1;
-            @foreach (var customer in customers)
+            @foreach (var customer in filteredCustomers)
             {
                 <tr>
                     <th scope="row">@count</th>
@@ -73,6 +80,7 @@
 
 @code {
     List<Customer> customers = new List<Customer>();
+    List<Customer> filteredCustomers = new();
     private Customer selectedCustomer = new();
     private bool IsModalVisible { get; set; }
     private Customer addedCustomer = new();
@@ -99,11 +107,27 @@
         if (result == null)
             return;
 
-        foreach (var customer in result)
+        customers = result.ToList();
+        filteredCustomers = result.ToList();
+    }
+
+    private void UpdateFilteredCustomers(string searchTerm)
+    {
+        if (string.IsNullOrEmpty(searchTerm))
         {
-            customers.Add(customer);
+            filteredCustomers = customers.ToList();
+        }
+        else
+        {
+            filteredCustomers = customers.Where(
+                customer => (customer.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (customer.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (customer.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (customer.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+            ).ToList();
         }
     }
+
 
     private async Task DeleteCustomer(Guid customerId)
     {
