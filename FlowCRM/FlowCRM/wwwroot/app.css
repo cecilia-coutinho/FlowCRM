@@ -81,8 +81,44 @@ p, .form-group label {
 }
 
 .table {
-    color: #5c5c5c;
+    border-collapse: collapse;
+    width: 100%;
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
 }
+
+    .table th, .table td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    .table thead tr {
+        background-color: #bd962b;
+        color: #ffffff;
+        text-transform: uppercase;
+        font-size: 0.9em;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+
+        .table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .table tbody tr:last-of-type {
+            border-bottom: 2px solid #bd962b;
+        }
+
+        .table tbody tr.active-row {
+            font-weight: bold;
+            color: #bd962b;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(189, 150, 43, 0.2);
+        }
+
 
 .modal-content {
     background-color: #f2f2f2;
