@@ -14,9 +14,74 @@ namespace FlowCRM.Implementations
             _context = context;
         }
 
-        public async Task<IEnumerable<Customer>> GetCustomersAsync()
+
+        public async Task<IEnumerable<Customer>> GetCustomersAsync(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
         {
-            return await _context.Customers.ToListAsync();
+            var customers = _context.Customers.AsQueryable();
+
+            // Filter
+            if (!string.IsNullOrWhiteSpace(filterOn) && !string.IsNullOrWhiteSpace(filterQuery))
+            {
+                if (filterOn.Equals("FirstName", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = customers.Where(c => c.FirstName != null && c.FirstName.Contains(filterQuery));
+                }
+                else if (filterOn.Equals("LastName", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = customers.Where(c => c.LastName != null && c.LastName.Contains(filterQuery));
+                }
+                else if (filterOn.Equals("Email", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = customers.Where(c => c.Email != null && c.Email.Contains(filterQuery));
+                }
+                else if (filterOn.Equals("PhoneNumber", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = customers.Where(c => c.PhoneNumber != null && c.PhoneNumber.Contains(filterQuery))
+                    ;
+                }
+                else if (filterOn.Equals("City", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = customers.Where(c => c.City != null && c.City.Contains(filterQuery));
+                }
+                else if (filterOn.Equals("Country", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = customers.Where(c => c.Country != null && c.Country.Contains(filterQuery));
+                }
+            }
+
+            // Sort
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortBy.Equals("FirstName", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = isAscending ? customers.OrderBy(c => c.FirstName) : customers.OrderByDescending(c => c.FirstName);
+                }
+                else if (sortBy.Equals("LastName", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = isAscending ? customers.OrderBy(c => c.LastName) : customers.OrderByDescending(c => c.LastName);
+                }
+                else if (sortBy.Equals("Email", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = isAscending ? customers.OrderBy(c => c.Email) : customers.OrderByDescending(c => c.Email);
+                }
+                else if (sortBy.Equals("PhoneNumber", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = isAscending ? customers.OrderBy(c => c.PhoneNumber) : customers.OrderByDescending(c => c.PhoneNumber);
+                }
+                else if (sortBy.Equals("City", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = isAscending ? customers.OrderBy(c => c.City) : customers.OrderByDescending(c => c.City);
+                }
+                else if (sortBy.Equals("Country", StringComparison.OrdinalIgnoreCase))
+                {
+                    customers = isAscending ? customers.OrderBy(c => c.Country) : customers.OrderByDescending(c => c.Country);
+                }
+            }
+
+            // Pagination
+            var skipResults = (pageNumber - 1) * pageSize;
+
+            return await customers.Skip(skipResults).Take(pageSize).ToListAsync();
         }
 
         public async Task<Customer> GetCustomerAsync(Guid id)

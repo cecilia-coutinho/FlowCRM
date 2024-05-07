@@ -13,9 +13,9 @@ namespace FlowCRM.Client.Services
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<Customer>> GetCustomersAsync()
+        public async Task<IEnumerable<Customer>> GetCustomersAsync(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
         {
-            var customers = await _httpClient.GetAsync("api/Customers/All-Customers");
+            var customers = await _httpClient.GetAsync($"api/Customers/All-Customers");
             var response = await customers.Content.ReadFromJsonAsync<IEnumerable<Customer>>();
 
             if (response == null)

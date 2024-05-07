@@ -8,6 +8,14 @@
 <div>
     <SearchBox Items="filteredCustomers" OnSearch="UpdateFilteredCustomers">
     </SearchBox>
+
+    <select @bind="selectedField">
+        <option value="FirstName">First Name</option>
+        <option value="LastName">Last Name</option>
+        <option value="Email">Email</option>
+        <option value="Country">Country</option>
+    </select>
+
 </div>
 
 <div>
@@ -17,68 +25,117 @@
 </div>
 
 <div class="table-responsive">
-<table class="table table-striped table-hover">
-    <thead class="thead-dark">
-        <tr>
-            <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Country</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (filteredCustomers is not null)
-        {
-            int count = 1;
-            @foreach (var customer in filteredCustomers)
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Country</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (filteredCustomers is not null)
             {
-                <tr>
-                    <th scope="row">@count</th>
-                    <td>@customer.FirstName</td>
-                    <td>@customer.LastName</td>
-                    <td>@customer.Email</td>
-                    <td>@customer.Country</td>
-                    <td>
-                        <div class="hstack gap-2">
-                            <button class="btn btn-secondary" @onclick='()=>OpenModal(customer, "view")'>
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="btn btn-primary" @onclick='()=>OpenModal(customer, "edit")'>
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-danger" @onclick="()=>DeleteCustomer(customer.CustomerId)">
-                                <i class=" bi bi-trash">
-                                </i>
-                            </button>
+                int count = 1;
+                @foreach (var customer in filteredCustomers)
+                {
+                    <tr>
+                        <th scope="row">@count</th>
+                        <td>@customer.FirstName</td>
+                        <td>@customer.LastName</td>
+                        <td>@customer.Email</td>
+                        <td>@customer.Country</td>
+                        <td>
+                            <div class="hstack gap-2">
+                                <button class="btn btn-secondary" @onclick='()=>OpenModal(customer, "view")'>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-primary" @onclick='()=>OpenModal(customer, "edit")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-danger" @onclick="()=>DeleteCustomer(customer.CustomerId)">
+                                    <i class=" bi bi-trash">
+                                    </i>
+                                </button>
 
-                            @if (IsModalVisible)
-                            {
-                                <div class="modal" tabindex="-1" style="display:block">
-                                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <CustomerForm Customer="selectedCustomer" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
-                                </div>
+                                @if (IsModalVisible)
+                                {
+                                    <div class="modal" tabindex="-1" style="display:block">
+                                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <CustomerForm Customer="selectedCustomer" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+                                    </div>
 
-                            }
-                        </div>
-                    </td>
-                </tr>
-                count++;
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <p>There are currently no customers in the database. Please check back later or add a new customer.</p>
+                </div>
+            }
+        </tbody>
+    </table>
+    <div>
+        <input type="button" class="btn-lg btn" id="prev" @onclick="PrevPage" value="Previous" disabled="@IsFirstPage" />
+
+        @{
+            int totalPages = (int)Math.Ceiling((double)totalCustomers / pageSize);
+            int startPage = Math.Max(currentPage - 2, 1);
+            int endPage = Math.Min(currentPage + 2, totalPages);
+
+            for (int i = startPage; i <= endPage; i++)
+            {
+                int j = i;
+                if (i == currentPage)
+                {
+                    <span class="px-2" style="font-weight:bold;cursor:pointer" @onclick="() => ShowPage(j)">@i</span>
+                }
+                else
+                {
+                    <span class="px-2" style="cursor:pointer" @onclick="() => ShowPage(j)">@i</span>
+                }
             }
         }
-        else
-        {
-            <div class="alert alert-info">
-                <p>There are currently no customers in the database. Please check back later or add a new customer.</p>
-            </div>
-        }
-    </tbody>
-</table>
+
+        <input type="button" class="btn-lg btn" id="next" @onclick="NextPage" value="Next" disabled="@IsLastPage" />
+
+    </div>
+
+
 </div>
 
+@* <div class="card-body">
+    <QuickGrid Items="@customersQueryable">
+        <PropertyColumn Property="@(p => p.FirstName)" Sortable="true" Align="Align.Center"/>
+        <PropertyColumn Property="@(p => p.LastName)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.Email)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.Country)" Sortable="true" Align="Align.Center" />
+            <TemplateColumn Title="Action">
+                <Template>
+                    <button class="btn btn-secondary" @onclick='(()=>OpenModal(context, "view"))'>
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-primary" @onclick='(()=>OpenModal(context, "edit"))'>
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-danger" @onclick="(()=>DeleteCustomer(context.CustomerId))">
+                        <i class=" bi bi-trash">
+                        </i>
+                    </button>
+                </Template>
+                </TemplateColumn>
+    </QuickGrid>
+</div> *@
 
 @code {
     List<Customer> customers = new List<Customer>();
@@ -87,48 +144,85 @@
     private bool IsModalVisible { get; set; }
     private Customer addedCustomer = new();
     private string Mode = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private string searchTerm = string.Empty;
+    private string? selectedField;
+    private int totalCustomers;
+    private int totalPages;
+    private bool IsLastPage => currentPage >= totalPages;
+    private bool IsFirstPage => currentPage <= 1;
 
-    private void OpenModal(Customer customer, string mode)
+
+    private async Task OnSearchTermChanged(string newSearchTerm)
     {
-        selectedCustomer = customer;
-        Mode = mode;
-        IsModalVisible = true;
-        StateHasChanged();
+        searchTerm = newSearchTerm;
+        await LoadCustomers();
     }
 
-    private void CloseModal()
+    protected async Task NextPage()
     {
-        IsModalVisible = false;
-        StateHasChanged();
+        currentPage++;
+        await LoadCustomers();
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        currentPage = i;
+        await LoadCustomers();
+    }
+
+    protected async Task PrevPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            await LoadCustomers();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomers();
     }
 
     private async Task LoadCustomers()
     {
-        var result = await CustomerService.GetCustomersAsync();
+        var result = await CustomerService.GetCustomersAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
         customers.Clear();
         if (result == null)
             return;
 
         customers = result.ToList();
         filteredCustomers = result.ToList();
+        totalCustomers = customers.Count;
+        UpdateFilteredCustomers(searchTerm);
+
     }
 
     private void UpdateFilteredCustomers(string searchTerm)
     {
-        if (string.IsNullOrEmpty(searchTerm))
+        IEnumerable<Customer> filtered = customers;
+
+        if (!string.IsNullOrEmpty(searchTerm))
         {
-            filteredCustomers = customers.ToList();
-        }
-        else
-        {
-            filteredCustomers = customers.Where(
+            filtered = customers.Where(
                 customer => (customer.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (customer.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (customer.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (customer.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
-            ).ToList();
+            );
         }
+
+        totalCustomers = filtered.Count();
+        totalPages = (int)Math.Ceiling((double)totalCustomers / pageSize);
+
+        filteredCustomers = filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
     }
+
 
 
     private async Task DeleteCustomer(Guid customerId)
@@ -160,8 +254,17 @@
         IsModalVisible = false;
     }
 
-    protected override async Task OnInitializedAsync()
+    private void OpenModal(Customer customer, string mode)
     {
-        await LoadCustomers();
+        selectedCustomer = customer;
+        Mode = mode;
+        IsModalVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+        StateHasChanged();
     }
 }
