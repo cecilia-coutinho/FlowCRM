@@ -24,28 +24,28 @@ namespace FlowCRM.Implementations
             {
                 if (filterOn.Equals("FirstName", StringComparison.OrdinalIgnoreCase))
                 {
-                    customers = customers.Where(c => c.FirstName != null && c.FirstName.Contains(filterQuery));
+                    customers = customers.Where(c => c.FirstName != null && c.FirstName.Contains(filterQuery, StringComparison.OrdinalIgnoreCase));
                 }
                 else if (filterOn.Equals("LastName", StringComparison.OrdinalIgnoreCase))
                 {
-                    customers = customers.Where(c => c.LastName != null && c.LastName.Contains(filterQuery));
+                    customers = customers.Where(c => c.LastName != null && c.LastName.Contains(filterQuery, StringComparison.OrdinalIgnoreCase));
                 }
                 else if (filterOn.Equals("Email", StringComparison.OrdinalIgnoreCase))
                 {
-                    customers = customers.Where(c => c.Email != null && c.Email.Contains(filterQuery));
+                    customers = customers.Where(c => c.Email != null && c.Email.Contains(filterQuery, StringComparison.OrdinalIgnoreCase));
                 }
                 else if (filterOn.Equals("PhoneNumber", StringComparison.OrdinalIgnoreCase))
                 {
-                    customers = customers.Where(c => c.PhoneNumber != null && c.PhoneNumber.Contains(filterQuery))
+                    customers = customers.Where(c => c.PhoneNumber != null && c.PhoneNumber.Contains(filterQuery, StringComparison.OrdinalIgnoreCase))
                     ;
                 }
                 else if (filterOn.Equals("City", StringComparison.OrdinalIgnoreCase))
                 {
-                    customers = customers.Where(c => c.City != null && c.City.Contains(filterQuery));
+                    customers = customers.Where(c => c.City != null && c.City.Contains(filterQuery, StringComparison.OrdinalIgnoreCase));
                 }
                 else if (filterOn.Equals("Country", StringComparison.OrdinalIgnoreCase))
                 {
-                    customers = customers.Where(c => c.Country != null && c.Country.Contains(filterQuery));
+                    customers = customers.Where(c => c.Country != null && c.Country.Contains(filterQuery, StringComparison.OrdinalIgnoreCase));
                 }
             }
 
