@@ -85,32 +85,11 @@
             }
         </tbody>
     </table>
+
     <div>
-        <input type="button" class="btn-lg btn" id="prev" @onclick="PrevPage" value="Previous" disabled="@IsFirstPage" />
-
-        @{
-            int totalPages = (int)Math.Ceiling((double)totalCustomers / pageSize);
-            int startPage = Math.Max(currentPage - 2, 1);
-            int endPage = Math.Min(currentPage + 2, totalPages);
-
-            for (int i = startPage; i <= endPage; i++)
-            {
-                int j = i;
-                if (i == currentPage)
-                {
-                    <span class="px-2" style="font-weight:bold;cursor:pointer" @onclick="() => ShowPage(j)">@i</span>
-                }
-                else
-                {
-                    <span class="px-2" style="cursor:pointer" @onclick="() => ShowPage(j)">@i</span>
-                }
-            }
-        }
-
-        <input type="button" class="btn-lg btn" id="next" @onclick="NextPage" value="Next" disabled="@IsLastPage" />
-
+        <Pagination Items="customers" currentPage="currentPage" pageSize="pageSize" totalCustomers="totalCustomers" totalPages="totalPages" OnPageChanged="ShowPage">
+        </Pagination>
     </div>
-
 
 </div>
 
@@ -145,13 +124,12 @@
     private Customer addedCustomer = new();
     private string Mode = string.Empty;
     private int currentPage = 1;
-    private int pageSize = 10;
+    private int defaultPageSize = 10;
+    private int pageSize;
     private string searchTerm = string.Empty;
     private string? selectedField;
     private int totalCustomers;
     private int totalPages;
-    private bool IsLastPage => currentPage >= totalPages;
-    private bool IsFirstPage => currentPage <= 1;
 
 
     private async Task OnSearchTermChanged(string newSearchTerm)
@@ -160,25 +138,10 @@
         await LoadCustomers();
     }
 
-    protected async Task NextPage()
-    {
-        currentPage++;
-        await LoadCustomers();
-    }
-
     protected async Task ShowPage(int i)
     {
         currentPage = i;
         await LoadCustomers();
-    }
-
-    protected async Task PrevPage()
-    {
-        if (currentPage > 1)
-        {
-            currentPage--;
-            await LoadCustomers();
-        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -194,8 +157,6 @@
             return;
 
         customers = result.ToList();
-        filteredCustomers = result.ToList();
-        totalCustomers = customers.Count;
         UpdateFilteredCustomers(searchTerm);
 
     }
@@ -212,6 +173,12 @@
                 || (customer.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (customer.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
             );
+
+            pageSize = filtered.Count();
+        }
+        else
+        {
+            pageSize = defaultPageSize;
         }
 
         totalCustomers = filtered.Count();
@@ -222,8 +189,6 @@
             .Take(pageSize)
             .ToList();
     }
-
-
 
     private async Task DeleteCustomer(Guid customerId)
     {
