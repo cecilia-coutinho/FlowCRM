@@ -5,17 +5,16 @@
 <h1>Customers</h1>
 <p>This is the customer overview page.</p>
 
-<div>
-    <SearchBox Items="filteredCustomers" OnSearch="UpdateFilteredCustomers">
-    </SearchBox>
-
-    <select @bind="selectedField">
+<div class="filter-container">
+    <label for="filterField">Filter By:</label>
+    <select id="filterField" @bind="selectedField">
         <option value="FirstName">First Name</option>
         <option value="LastName">Last Name</option>
         <option value="Email">Email</option>
         <option value="Country">Country</option>
     </select>
 
+    <SearchBox Items="filteredCustomers" OnSearch="UpdateFilteredCustomers" />
 </div>
 
 <div>
@@ -167,20 +166,24 @@
 
         if (!string.IsNullOrEmpty(searchTerm))
         {
-            filtered = customers.Where(
-                customer => (customer.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (customer.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (customer.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (customer.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
-            );
-
-            pageSize = filtered.Count();
+            filtered = customers.Where(customer =>
+            {
+                switch (selectedField)
+                {
+                    case "FirstName":
+                        return customer.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "LastName":
+                        return customer.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Email":
+                        return customer.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Country":
+                        return customer.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    default:
+                        return false;
+                }
+            });
         }
-        else
-        {
-            pageSize = defaultPageSize;
-        }
-
+        pageSize = !string.IsNullOrEmpty(searchTerm) ? filtered.Count() : defaultPageSize;
         totalCustomers = filtered.Count();
         totalPages = (int)Math.Ceiling((double)totalCustomers / pageSize);
 
