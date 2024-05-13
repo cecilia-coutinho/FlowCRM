@@ -7,8 +7,8 @@ namespace FlowCRM.Shared.Entities
     {
         [Key]
         public Guid ContactId { get; set; }
-        public Guid FkCustomerId { get; set; }
-        public Guid FkCompanyId { get; set; }
+        public Guid? FkCustomerId { get; set; }
+        public Guid? FkCompanyId { get; set; }
 
         [Required]
         public string? FirstName { get; set; }
