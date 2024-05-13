@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FlowCRM.Shared.Entities
 {
-		public class DealStatus
-		{
-				public Guid DealStatusId { get; set; }
-				public required string StatusName { get; set; }
+    public class DealStatus
+    {
+        [Key]
+        public Guid DealStatusId { get; set; }
 
-				// Navigation properties
-				public ICollection<Deal>? Deals { get; set; }
-		}
+        [Required]
+        public string? StatusName { get; set; }
+
+        // Navigation properties
+        [JsonIgnore]
+        public ICollection<Deal>? Deals { get; set; }
+    }
 }
