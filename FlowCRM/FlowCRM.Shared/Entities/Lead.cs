@@ -26,7 +26,9 @@ namespace FlowCRM.Shared.Entities
         public string? UpdatedBy { get; set; }
 
         // Navigation properties
+        [JsonIgnore]
         public virtual Priority? Priorities { get; set; }
+        [JsonIgnore]
         public virtual Company? Companies { get; set; }
     }
 }

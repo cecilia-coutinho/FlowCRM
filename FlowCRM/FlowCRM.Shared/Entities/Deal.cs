@@ -8,8 +8,8 @@ namespace FlowCRM.Shared.Entities
         [Key]
         public Guid DealId { get; set; }
         public string? DealName { get; set; }
-        public Guid FkCustomerId { get; set; }
-        public Guid FkCompanyId { get; set; }
+        public Guid? FkCustomerId { get; set; }
+        public Guid? FkCompanyId { get; set; }
 
         [Required]
         public decimal DealAmount { get; set; }

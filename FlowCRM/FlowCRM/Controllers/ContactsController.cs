@@ -18,11 +18,19 @@ namespace FlowCRM.Controllers
 			_contactRepository = contactRepository;
 		}
 
-		// GET: api/Contacts/All-Contacts
-		[HttpGet("All-Contacts")]
-		public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
+        // GET: api/Contacts/All-Contacts?pageNumber=1&pageSize=1000
+        [HttpGet("All-Contacts")]
+		public async Task<ActionResult<IEnumerable<Contact>>> GetContacts([FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
 		{
-			var contacts = await _contactRepository.GetContactsAsync();
+			var contacts = await _contactRepository.GetContactsAsync(filterOn,
+                filterQuery,
+                sortBy,
+                isAscending ?? true,
+                pageNumber,
+                pageSize);
 			return Ok(contacts);
 		}
 

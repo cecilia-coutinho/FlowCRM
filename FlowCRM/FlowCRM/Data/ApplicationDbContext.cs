@@ -27,6 +27,18 @@ namespace FlowCRM.Data
                 entity.HasIndex(e => e.Email).IsUnique();
             });
 
+            builder.Entity<Priority>(entity =>
+            {
+                entity.HasKey(e => e.PriorityId);
+                entity.HasIndex(e => e.PriorityName).IsUnique();
+            });
+
+            builder.Entity<DealStatus>(entity =>
+            {
+                entity.HasKey(e => e.DealStatusId);
+                entity.HasIndex(e => e.StatusName).IsUnique();
+            });
+
             builder.Entity<Company>(entity =>
             {
                 entity.HasKey(e => e.CompanyId);
@@ -52,13 +64,14 @@ namespace FlowCRM.Data
                 entity.HasKey(e => e.ContactId);
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.HasOne(e => e.Customers).WithMany(c => c.Contacts).HasForeignKey(e => e.FkCustomerId);
-                entity.HasOne(e => e.Companies).WithMany(c => c.Contacts).HasForeignKey(e => e.FkCompanyId);
+                entity.HasOne(e => e.Companies).WithMany(c => c.Contacts).HasForeignKey(e => e.FkCompanyId).OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<Deal>(entity =>
             {
                 entity.HasKey(e => e.DealId);
                 entity.HasIndex(e => e.DealName).IsUnique();
+                entity.Property(e => e.DealAmount).HasColumnType("decimal(18,2)");
                 entity.HasOne(e => e.Customers).WithMany(c => c.Deals).HasForeignKey(e => e.FkCustomerId);
                 entity.HasOne(e => e.Companies).WithMany(c => c.Deals).HasForeignKey(e => e.FkCompanyId);
                 entity.HasOne(e => e.Priorities).WithMany(p => p.Deals).HasForeignKey(e => e.FkPriorityId);
@@ -66,23 +79,11 @@ namespace FlowCRM.Data
 
             });
 
-            builder.Entity<DealStatus>(entity =>
-            {
-                entity.HasKey(e => e.DealStatusId);
-                entity.HasIndex(e => e.StatusName).IsUnique();
-            });
-
             builder.Entity<Lead>(entity =>
             {
                 entity.HasKey(e => e.LeadId);
                 entity.HasOne(e => e.Companies).WithMany(c => c.Leads).HasForeignKey(e => e.FkCompanyId);
                 entity.HasOne(e => e.Priorities).WithMany(p => p.Leads).HasForeignKey(e => e.FkPriorityId);
-            });
-
-            builder.Entity<Priority>(entity =>
-            {
-                entity.HasKey(e => e.PriorityId);
-                entity.HasIndex(e => e.PriorityName).IsUnique();
             });
 
 

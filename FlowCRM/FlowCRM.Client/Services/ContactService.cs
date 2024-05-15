@@ -13,7 +13,7 @@ namespace FlowCRM.Client.Services
 		{
 			_httpClient = httpClient;
 		}
-		public async Task<IEnumerable<Contact>> GetContactsAsync()
+		public async Task<IEnumerable<Contact>> GetContactsAsync(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
 		{
 			var contacts = await _httpClient.GetAsync("api/Contacts/All-Contacts");
 			var response = await contacts.Content.ReadFromJsonAsync<IEnumerable<Contact>>();

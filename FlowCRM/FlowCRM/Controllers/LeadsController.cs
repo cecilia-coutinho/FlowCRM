@@ -1,4 +1,5 @@
-﻿using FlowCRM.Data;
+﻿using FlowCRM.CustomActionFilters;
+using FlowCRM.Data;
 using FlowCRM.Shared.Entities;
 using FlowCRM.Shared.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,27 @@ namespace FlowCRM.Controllers
 			_leadRepository = leadRepository;
 		}
 
-		// GET: api/Leads/All-Leads
-		[HttpGet("All-Leads")]
-		public async Task<ActionResult<IEnumerable<Lead>>> GetLeads()
+        // GET: api/Leads/All-Leads?pageNumber=1&pageSize=1000
+        [HttpGet("All-Leads")]
+		public async Task<ActionResult<IEnumerable<Lead>>> GetLeads([FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
 		{
+			try
+			{
 			var leads = await _leadRepository.GetLeadsAsync();
 			return Ok(leads);
+			}
+			catch (ArgumentException ex)
+			{
+                var errorResult = new CustomErrorResult
+				{
+                    Succeeded = false,
+                    Errors = new List<string> { ex.Message }
+                };
+                return BadRequest(errorResult);
+            }
 		}
 
 		// GET: api/Leads/Single-Lead/5
