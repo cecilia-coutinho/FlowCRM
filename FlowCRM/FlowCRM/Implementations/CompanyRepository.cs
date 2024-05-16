@@ -14,10 +14,62 @@ namespace FlowCRM.Implementations
 			_context = context;
 		}
 
-		public async Task<IEnumerable<Company>> GetCompaniesAsync()
+		public async Task<IEnumerable<Company>> GetCompaniesAsync(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
 		{
-			return await _context.Companies.ToListAsync();
-		}
+            var companies = _context.Companies.AsQueryable();
+
+            // Filter
+            if (!string.IsNullOrWhiteSpace(filterOn) && !string.IsNullOrWhiteSpace(filterQuery))
+            {
+                if (filterOn.Equals("CompanyName", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = companies.Where(c => c.CompanyName != null && c.CompanyName.Contains(filterQuery));
+                }
+                else if (filterOn.Equals("CompanyEmailAddress", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = companies.Where(c => c.CompanyEmailAddress != null && c.CompanyEmailAddress.Contains(filterQuery));
+                }
+                else if (filterOn.Equals("City", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = companies.Where(c => c.City != null && c.City.Contains(filterQuery));
+                }
+                else if (filterOn.Equals("Country", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = companies.Where(c => c.Country != null && c.Country.Contains(filterQuery))
+                    ;
+                }
+                else
+                {
+                    throw new ArgumentException($"Invalid filter on: '{filterOn}'", "filterOn");
+                }
+            }
+
+            // Sort
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortBy.Equals("CompanyName", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = isAscending ? companies.OrderBy(c => c.CompanyName) : companies.OrderByDescending(c => c.CompanyName);
+                }
+                else if (sortBy.Equals("CompanyEmailAddress", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = isAscending ? companies.OrderBy(c => c.CompanyEmailAddress) : companies.OrderByDescending(c => c.CompanyEmailAddress);
+                }
+                else if (sortBy.Equals("City", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = isAscending ? companies.OrderBy(c => c.City) : companies.OrderByDescending(c => c.City);
+                }
+                else if (sortBy.Equals("Country", StringComparison.OrdinalIgnoreCase))
+                {
+                    companies = isAscending ? companies.OrderBy(c => c.Country) : companies.OrderByDescending(c => c.Country);
+                }
+            }
+
+            // Pagination
+            var skipResults = (pageNumber - 1) * pageSize;
+
+            return await companies.Skip(skipResults).Take(pageSize).ToListAsync();
+        }
 
 		public async Task<Company> GetCompanyAsync(Guid id)
 		{
@@ -39,7 +91,7 @@ namespace FlowCRM.Implementations
 			}
 
 			company.CreatedAt = DateTime.Now;
-			_context.Companies.Add(company);
+			await _context.Companies.AddAsync(company);
 			await _context.SaveChangesAsync();
 			return company;
 		}

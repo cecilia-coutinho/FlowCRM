@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FlowCRM.Shared.Entities
 {
-		public class ActivityType
-		{
-				public Guid ActivityTypeId { get; set; }
-				public required string TypeName { get; set; }
+    public class ActivityType
+    {
 
-				public ICollection<Activity>? Activities { get; set; }
-		}
+        [Key]
+        public Guid ActivityTypeId { get; set; }
+
+        [Required]
+        public string? TypeName { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Activity>? Activities { get; set; }
+    }
 }

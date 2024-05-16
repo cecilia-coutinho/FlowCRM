@@ -5,67 +5,234 @@
 <h1>Customers</h1>
 <p>This is the customer overview page.</p>
 
-@if (customers.Count == 0)
-{
-	<div class="spinner-border text-primary" role="status">
-		<span class="visually-hidden">Loading...</span>
-	</div>
-}
-@* @if (customers.Count <= 0)
-{
-	<div class="alert alert-info">
-		<p>There are currently no customers in the database. Please check back later or add a new customer.</p>
-	</div>
-} *@
-else
-{
-	<table class="table">
-		<thead>
-			<tr>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Email</th>
-				<th>Phone Number</th>
-				<th>City</th>
-				<th>Country</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var customer in customers)
-			{
-				<tr>
-					<td>@customer.FirstName</td>
-					<td>@customer.LastName</td>
-					<td>@customer.Email</td>
-					<td>@customer.PhoneNumber</td>
-					<td>@customer.City</td>
-					<td>@customer.Country</td>
-					<td>
-						<div class="hstack gap-2">
-							<i class="oi oi-pencil text-info"></i>
-							<i class="oi oi-trash text-danger"></i>
-						</div>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
+<div class="filter-container">
+    <label for="filterField">Filter By:</label>
+    <select id="filterField" @bind="selectedField">
+        <option value="FirstName">First Name</option>
+        <option value="LastName">Last Name</option>
+        <option value="Email">Email</option>
+        <option value="Country">Country</option>
+    </select>
+
+    <SearchBox Items="filteredCustomers" OnSearch="UpdateFilteredCustomers" />
+</div>
+
+<div>
+    <button class="btn btn-primary" style="margin-bottom: 20px;" @onclick='()=>OpenModal(new Customer(), "add")'>
+        <i class="bi bi-person-plus"></i> Add Customer
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Country</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (filteredCustomers is not null)
+            {
+                int count = 1;
+                @foreach (var customer in filteredCustomers)
+                {
+                    <tr>
+                        <th scope="row">@count</th>
+                        <td>@customer.FirstName</td>
+                        <td>@customer.LastName</td>
+                        <td>@customer.Email</td>
+                        <td>@customer.Country</td>
+                        <td>
+                            <div class="hstack gap-2">
+                                <button class="btn btn-secondary" @onclick='()=>OpenModal(customer, "view")'>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-primary" @onclick='()=>OpenModal(customer, "edit")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-danger" @onclick="()=>DeleteCustomer(customer.CustomerId)">
+                                    <i class=" bi bi-trash">
+                                    </i>
+                                </button>
+
+                                @if (IsModalVisible)
+                                {
+                                    <div class="modal" tabindex="-1" style="display:block">
+                                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <CustomerForm Customer="selectedCustomer" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+                                    </div>
+
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <p>There are currently no customers in the database. Please check back later or add a new customer.</p>
+                </div>
+            }
+        </tbody>
+    </table>
+
+    <div>
+        <Pagination Items="customers" currentPage="currentPage" pageSize="pageSize" totalCustomers="totalCustomers" totalPages="totalPages" OnPageChanged="ShowPage">
+        </Pagination>
+    </div>
+
+</div>
+
+@* <div class="card-body">
+    <QuickGrid Items="@customersQueryable">
+        <PropertyColumn Property="@(p => p.FirstName)" Sortable="true" Align="Align.Center"/>
+        <PropertyColumn Property="@(p => p.LastName)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.Email)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Property="@(p => p.Country)" Sortable="true" Align="Align.Center" />
+            <TemplateColumn Title="Action">
+                <Template>
+                    <button class="btn btn-secondary" @onclick='(()=>OpenModal(context, "view"))'>
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-primary" @onclick='(()=>OpenModal(context, "edit"))'>
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-danger" @onclick="(()=>DeleteCustomer(context.CustomerId))">
+                        <i class=" bi bi-trash">
+                        </i>
+                    </button>
+                </Template>
+                </TemplateColumn>
+    </QuickGrid>
+</div> *@
 
 @code {
-	List<Customer> customers = new List<Customer>();
+    List<Customer> customers = new List<Customer>();
+    List<Customer> filteredCustomers = new();
+    private Customer selectedCustomer = new();
+    private bool IsModalVisible { get; set; }
+    private Customer addedCustomer = new();
+    private string Mode = string.Empty;
+    private int currentPage = 1;
+    private int defaultPageSize = 10;
+    private int pageSize;
+    private string searchTerm = string.Empty;
+    private string? selectedField;
+    private int totalCustomers;
+    private int totalPages;
 
-	protected override async Task OnInitializedAsync()
-	{
-		var result = await CustomerService.GetCustomersAsync();
-		//customers.Clear();
-		if (result == null)
-			return;
 
-		foreach (var customer in result)
-		{
-			customers.Add(customer);
-		}
-	}
+    private async Task OnSearchTermChanged(string newSearchTerm)
+    {
+        searchTerm = newSearchTerm;
+        await LoadCustomers();
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        currentPage = i;
+        await LoadCustomers();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomers();
+    }
+
+    private async Task LoadCustomers()
+    {
+        var result = await CustomerService.GetCustomersAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
+        customers.Clear();
+        if (result == null)
+            return;
+
+        customers = result.ToList();
+        UpdateFilteredCustomers(searchTerm);
+
+    }
+
+    private void UpdateFilteredCustomers(string searchTerm)
+    {
+        IEnumerable<Customer> filtered = customers;
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            filtered = customers.Where(customer =>
+            {
+                switch (selectedField)
+                {
+                    case "FirstName":
+                        return customer.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "LastName":
+                        return customer.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Email":
+                        return customer.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Country":
+                        return customer.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    default:
+                        return false;
+                }
+            });
+        }
+        pageSize = !string.IsNullOrEmpty(searchTerm) ? filtered.Count() : defaultPageSize;
+        totalCustomers = filtered.Count();
+        totalPages = (int)Math.Ceiling((double)totalCustomers / pageSize);
+
+        filteredCustomers = filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private async Task DeleteCustomer(Guid customerId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this customer?");
+        if (confirmed)
+        {
+            await CustomerService.DeleteCustomerAsync(customerId);
+            await LoadCustomers();
+        }
+    }
+
+    private async Task HandleSubmit(Customer customer)
+    {
+        if (Mode == "add")
+        {
+            await CustomerService.AddCustomerAsync(customer);
+        }
+        if (Mode == "view")
+        {
+            await CustomerService.GetCustomerAsync(customer.CustomerId);
+        }
+        if (Mode == "edit")
+        {
+            await CustomerService.UpdateCustomerAsync(customer);
+        }
+
+        await LoadCustomers();
+        IsModalVisible = false;
+    }
+
+    private void OpenModal(Customer customer, string mode)
+    {
+        selectedCustomer = customer;
+        Mode = mode;
+        IsModalVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+        StateHasChanged();
+    }
 }

@@ -1,0 +1,71 @@
+﻿@typeparam TEntity
+
+<div>
+    <input type="button" class="btn-lg btn" id="prev" @onclick="PrevPage" value="Previous" disabled="@IsFirstPage" />
+
+    @{
+        int totalPages = (int)Math.Ceiling((double)totalCustomers / pageSize);
+        int startPage = Math.Max(currentPage - 2, 1);
+        int endPage = Math.Min(currentPage + 2, totalPages);
+
+        for (int i = startPage; i <= endPage; i++)
+        {
+            int j = i;
+            if (i == currentPage)
+            {
+                <span class="px-2" style="font-weight:bold;cursor:pointer" @onclick="() => ShowPage(j)">@i</span>
+            }
+            else
+            {
+                <span class="px-2" style="cursor:pointer" @onclick="() => ShowPage(j)">@i</span>
+            }
+        }
+    }
+
+    <input type="button" class="btn-lg btn" id="next" @onclick="NextPage" value="Next" disabled="@IsLastPage" />
+
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<TEntity>? Items { get; set; }
+
+
+    [Parameter]
+    public int currentPage { get; set; }
+
+    [Parameter]
+    public int pageSize { get; set; }
+
+    [Parameter]
+    public int totalCustomers { get; set; }
+
+    [Parameter]
+    public int totalPages { get; set; }
+
+    private bool IsLastPage => currentPage >= totalPages;
+    private bool IsFirstPage => currentPage <= 1;
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    protected async Task PrevPage()
+    {
+        currentPage--;
+        await OnPageChanged.InvokeAsync(currentPage);
+    }
+
+    protected async Task NextPage()
+    {
+
+        currentPage++;
+        await OnPageChanged.InvokeAsync(currentPage);
+    }
+
+
+    protected async Task ShowPage(int i)
+    {
+        currentPage = i;
+        await OnPageChanged.InvokeAsync(i);
+    }
+}

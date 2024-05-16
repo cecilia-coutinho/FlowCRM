@@ -16,11 +16,19 @@ namespace FlowCRM.Controllers
 			_customerRepository = customerRepository;
 		}
 
-		// GET: api/Customers/All-Customers
-		[HttpGet("All-Customers")]
-		public async Task<ActionResult<IEnumerable<Customer>>> GetCustomersAsync()
+        // GET: api/Customers/All-Customers?pageNumber=1&pageSize=1000
+        [HttpGet("All-Customers")]
+		public async Task<ActionResult<IEnumerable<Customer>>> GetCustomersAsync([FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
 		{
-			var customers = await _customerRepository.GetCustomersAsync();
+			var customers = await _customerRepository.GetCustomersAsync(filterOn,
+                filterQuery,
+                sortBy,
+                isAscending ?? true,
+                pageNumber,
+                pageSize);
 			return Ok(customers);
 		}
 

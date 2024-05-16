@@ -1,0 +1,105 @@
+﻿@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lead Details</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form @onsubmit="HandleSubmit">
+                        <div class="form-group mb-3">
+                            <label for="FirstName">First Name</label>
+                            <input type="text" class="form-control" id="FirstName" @bind="Lead.FirstName">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="LastName">Last Name</label>
+                            <input type="text" class="form-control" id="LastName" @bind="Lead.LastName">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Email">Email</label>
+                            <input type="text" class="form-control" id="Email" @bind="Lead.Email">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="PhoneNumber">Phone Number</label>
+                            <input type="text" class="form-control" id="PhoneNumber" @bind="Lead.PhoneNumber">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="PCity">City</label>
+                            <input type="text" class="form-control" id="City" @bind="Lead.City">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Country">Country</label>
+                            <input type="text" class="form-control" id="Country" @bind="Lead.Country">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Company">Company</label>
+                            <select class="form-control select-css" id="Company" @bind="Lead.FkCompanyId">
+                                @if (companies != null)
+                                {
+                                    @foreach (var company in companies)
+                                    {
+                                        <option value="@company.CompanyId">@company.CompanyName</option>
+                                    }
+                                }
+                                </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Priority">Priority</label>
+                            <select class="form-control select-css" id="Priority" @bind="Lead.FkPriorityId">
+                                @if (priorities != null)
+                                {
+                                    @foreach (var priority in priorities)
+                                    {
+                                        <option value="@priority.PriorityId">@priority.PriorityName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        @if (Mode != "view")
+                        {
+                            <button type="submit" class="btn btn-primary mb-3">Save Changes</button>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Lead Lead { get; set; }
+
+    [Parameter]
+    public List<Company>? companies { get; set; }
+
+    [Parameter]
+    public List<Priority>? priorities { get; set; }
+
+    [Parameter]
+    public EventCallback<Lead> OnSubmit { get; set; }
+
+    [Parameter]
+    public bool IsModalVisible { get; set; }
+
+    [Parameter]
+    public string? Mode { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsModalVisibleChanged { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(Lead);
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        await IsModalVisibleChanged.InvokeAsync(false);
+    }
+}

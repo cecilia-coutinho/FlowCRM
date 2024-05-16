@@ -1,0 +1,75 @@
+﻿@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Customer Details</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form @onsubmit="HandleSubmit">
+                        <div class="form-group mb-3">
+                            <label for="FirstName">First Name</label>
+                            <input type="text" class="form-control" id="FirstName" @bind="Customer.FirstName">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="LastName">Last Name</label>
+                            <input type="text" class="form-control" id="LastName" @bind="Customer.LastName">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Email">Email</label>
+                            <input type="text" class="form-control" id="Email" @bind="Customer.Email">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="PhoneNumber">Phone Number</label>
+                            <input type="text" class="form-control" id="PhoneNumber" @bind="Customer.PhoneNumber">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="City">City</label>
+                            <input type="text" class="form-control" id="City" @bind="Customer.City">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Country">Country</label>
+                            <input type="text" class="form-control" id="Country" @bind="Customer.Country">
+                        </div>
+                        @if (Mode != "view")
+                        {
+                            <button type="submit" class="btn btn-primary mb-3">Save Changes</button>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Customer Customer { get; set; }
+
+    [Parameter]
+    public EventCallback<Customer> OnSubmit { get; set; }
+
+    [Parameter]
+    public bool IsModalVisible { get; set; }
+
+    [Parameter]
+    public string? Mode { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsModalVisibleChanged { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(Customer);
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        await IsModalVisibleChanged.InvokeAsync(false);
+    }
+}
