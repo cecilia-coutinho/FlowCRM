@@ -1,4 +1,5 @@
-﻿using FlowCRM.Data;
+﻿using FlowCRM.CustomActionFilters;
+using FlowCRM.Data;
 using FlowCRM.Shared.Entities;
 using FlowCRM.Shared.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,27 @@ namespace FlowCRM.Controllers
 			_companyRepository = companyRepository;
 		}
 
-		// GET: api/Companies/All-Companies
-		[HttpGet("All-Companies")]
-		public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
+        // GET: api/Companies/All-Companies?pageNumber=1&pageSize=1000
+        [HttpGet("All-Companies")]
+		public async Task<ActionResult<IEnumerable<Company>>> GetCompanies([FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
 		{
+			try
+			{ 
 			var companies = await _companyRepository.GetCompaniesAsync();
 			return Ok(companies);
+				}
+            catch (ArgumentException ex)
+			{
+                var errorResult = new CustomErrorResult
+				{
+                    Succeeded = false,
+                    Errors = new List<string> { ex.Message }
+                };
+                return BadRequest(errorResult);
+            }
 		}
 
 		// GET: api/Companies/Single-Company/5
