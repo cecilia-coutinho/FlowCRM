@@ -82,8 +82,8 @@ namespace FlowCRM.Data
             modelBuilder.Entity<Lead>(entity =>
             {
                 entity.HasKey(e => e.LeadId);
-                entity.HasOne(e => e.Companies).WithMany(c => c.Leads).HasForeignKey(e => e.FkCompanyId).OnDelete(DeleteBehavior.SetNull);
-                entity.HasOne(e => e.Priorities).WithMany(p => p.Leads).HasForeignKey(e => e.FkPriorityId);
+                entity.HasOne(e => e.Companies).WithMany(c => c.Leads).HasForeignKey(e => e.FkCompanyId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Priorities).WithMany(p => p.Leads).HasForeignKey(e => e.FkPriorityId).OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Seed();
