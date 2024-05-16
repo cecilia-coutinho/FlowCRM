@@ -110,13 +110,13 @@ namespace FlowCRM.Implementations
                 {
                     leads.Join(
                         _context.Companies,
-                            lead => lead.FkCompanyId,
-                                company => company.CompanyId,
-                                (lead, company) => new
-                                {
-                                    lead,
-                                    company
-                                }
+                        lead => lead.FkCompanyId,
+                        company => company.CompanyId,
+                        (lead, company) => new
+                        {
+                            lead,
+                            company
+                        }
                         .ToString());
 
                     leads = isAscending ? leads.OrderBy(c => c.Companies) : leads.OrderByDescending(c => c.Companies);
@@ -161,8 +161,17 @@ namespace FlowCRM.Implementations
                 throw new Exception($"No lead found: {lead}");
             }
 
-            existingLead = lead;
+            existingLead.FirstName = lead.FirstName;
+            existingLead.LastName = lead.LastName;
+            existingLead.Email = lead.Email;
+            existingLead.PhoneNumber = lead.PhoneNumber;
+            existingLead.FkPriorityId = lead.FkPriorityId;
+            existingLead.FkCompanyId = lead.FkCompanyId;
+            existingLead.City = lead.City;
+            existingLead.Country = lead.Country;
             existingLead.UpdatedAt = DateTime.Now;
+            existingLead.UpdatedBy = lead.UpdatedBy;
+
             _context.Entry(existingLead).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return existingLead;
