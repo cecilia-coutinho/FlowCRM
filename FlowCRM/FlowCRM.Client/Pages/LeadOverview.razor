@@ -1,77 +1,240 @@
 ﻿@page "/leads"
-@inject HttpClient Http
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
 <PageTitle>Leads</PageTitle>
 <h1>Leads</h1>
 <p>This is the leads overview page.</p>
 
-@if (leads.Count == 0)
-{
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-}
-else
-{
-<table class="table">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Company</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-            <th>Priority</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var contact in leads)
-        {
+<div class="filter-container">
+    <label for="filterField">Filter By:</label>
+    <select id="filterField" @bind="selectedField">
+        <option value="FirstName">First Name</option>
+        <option value="LastName">Last Name</option>
+        <option value="Email">Email</option>
+        <option value="Company">Company</option>
+        <option value="Priority">Priority</option>
+    </select>
+
+    <SearchBox Items="filteredLeads" OnSearch="UpdateFilteredLeads" />
+</div>
+
+<div>
+    <button class="btn btn-primary" style="margin-bottom: 20px;" @onclick='()=>OpenModal(new Lead(), "add")'>
+        <i class="bi bi-person-plus"></i> Add Leads
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
             <tr>
-                <td>@contact.FirstName</td>
-                <td>@contact.LastName</td>
-                <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
-                <td>@contact.Email</td>
-                <td>@contact.PhoneNumber</td>
-                <td>@priorities.FirstOrDefault(p => p.PriorityId == contact.FkPriorityId)?.PriorityName</td>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Priority</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
-}
+        </thead>
+        <tbody>
+            @if (filteredLeads is not null)
+            {
+                int count = 1;
+                @foreach (var lead in filteredLeads)
+                {
+                    <tr>
+                        <th scope="row">@count</th>
+                        <td>@lead.FirstName</td>
+                        <td>@lead.LastName</td>
+                        <td>@lead.Email</td>
+                        <td>@companies.FirstOrDefault(c => c.CompanyId == lead.FkCompanyId)?.CompanyName</td>
+                        <td>@priorities.FirstOrDefault(p => p.PriorityId == lead.FkPriorityId)?.PriorityName</td>
+                        <td>
+                            <div class="hstack gap-2">
+                                <button class="btn btn-secondary" @onclick='()=>OpenModal(lead, "view")'>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-primary" @onclick='()=>OpenModal(lead, "edit")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-danger" @onclick="()=>DeleteLead(lead.LeadId)">
+                                    <i class=" bi bi-trash">
+                                    </i>
+                                </button>
+
+                                @if (IsModalVisible)
+                                {
+                                    <div class="modal" tabindex="-1" style="display:block">
+                                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <LeadForm Lead="selectedLead" companies="companies" priorities="priorities" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+                                    </div>
+
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <p>There are currently no leads in the database. Please check back later or add a new lead.</p>
+                </div>
+            }
+        </tbody>
+    </table>
+</div>
 
 @code {
     List<Lead> leads = new List<Lead>();
+    List<Lead> filteredLeads = new();
+    private string? selectedField;
+    private int currentPage = 1;
+    private int defaultPageSize = 10;
+    private int pageSize;
+    private int totalLeads;
+    private int totalPages;
+    private string searchTerm = string.Empty;
+    private Lead selectedLead = new();
+    private bool IsModalVisible { get; set; }
+    private string Mode = string.Empty;
+
     List<Company> companies = new List<Company>();
     List<Priority> priorities = new List<Priority>();
 
+    private async Task OnSearchTermChanged(string newSearchTerm)
+    {
+        searchTerm = newSearchTerm;
+        await LoadLeads();
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        currentPage = i;
+        await LoadLeads();
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        var leadResult = await LeadService.GetLeadsAsync();
-        var companyResult = await CompanyService.GetCompaniesAsync();
-        var priorityResult = await PriorityService.GetPrioritiesAsync();
+        await LoadLeads();
+        await LoadCompanies();
+        await LoadPriorities();
+    }
 
+    private async Task LoadLeads()
+    {
+        var result = await LeadService.GetLeadsAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
         leads.Clear();
-        companies.Clear();
-        priorities.Clear();
-
-        if (leadResult == null)
+        if (result == null)
             return;
 
-        foreach (var lead in leadResult)
+        leads = result.ToList();
+        UpdateFilteredLeads(searchTerm);
+    }
+
+    private async Task LoadPriorities()
+    {
+        var result = await PriorityService.GetPrioritiesAsync();
+        priorities.Clear();
+        if (result == null)
+            return;
+
+        priorities = result.ToList();
+        UpdateFilteredLeads(searchTerm);
+    }
+
+    private async Task LoadCompanies()
+    {
+        var result = await CompanyService.GetCompaniesAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
+        companies.Clear();
+        if (result == null)
+            return;
+
+        companies = result.ToList();
+        UpdateFilteredLeads(searchTerm);
+    }
+
+    private void UpdateFilteredLeads(string searchTerm)
+    {
+        IEnumerable<Lead> filtered = leads;
+
+        if (!string.IsNullOrEmpty(searchTerm))
         {
-            leads.Add(lead);
+            filtered = leads.Where(lead =>
+            {
+                switch (selectedField)
+                {
+                    case "FirstName":
+                        return lead.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "LastName":
+                        return lead.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Email":
+                        return lead.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Company":
+                        var company = companies.FirstOrDefault(c => c.CompanyId == lead.FkCompanyId);
+                        return company?.CompanyName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Priority":
+                        var priority = priorities.FirstOrDefault(c => c.PriorityId == lead.FkPriorityId);
+                        return priority?.PriorityName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    default:
+                        return false;
+                }
+            });
+        }
+        pageSize = !string.IsNullOrEmpty(searchTerm) ? filtered.Count() : defaultPageSize;
+        totalLeads = filtered.Count();
+        totalPages = (int)Math.Ceiling((double)totalLeads / pageSize);
+
+        filteredLeads = filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private async Task DeleteLead(Guid leadId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this lead?");
+        if (confirmed)
+        {
+            await LeadService.DeleteLeadAsync(leadId);
+            await LoadLeads();
+        }
+    }
+
+    private async Task HandleSubmit(Lead lead)
+    {
+        if (Mode == "add")
+        {
+            await LeadService.AddLeadAsync(lead);
+        }
+        if (Mode == "view")
+        {
+            await LeadService.GetLeadAsync(lead.LeadId);
+        }
+        if (Mode == "edit")
+        {
+            await LeadService.UpdateLeadAsync(lead);
         }
 
-        foreach (var company in companyResult)
-        {
-            companies.Add(company);
-        }
+        await LoadLeads();
+        IsModalVisible = false;
+    }
 
-        foreach (var priority in priorityResult)
-        {
-            priorities.Add(priority);
-        }
+    private void OpenModal(Lead lead, string mode)
+    {
+        selectedLead = lead;
+        Mode = mode;
+        IsModalVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+        StateHasChanged();
     }
 }
