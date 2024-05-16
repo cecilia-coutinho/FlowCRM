@@ -126,7 +126,7 @@ namespace FlowCRM.Migrations
 
                     b.HasIndex("FkDealId");
 
-                    b.ToTable("Activities");
+                    b.ToTable("Activities", (string)null);
                 });
 
             modelBuilder.Entity("FlowCRM.Shared.Entities.ActivityType", b =>
@@ -144,7 +144,7 @@ namespace FlowCRM.Migrations
                     b.HasIndex("TypeName")
                         .IsUnique();
 
-                    b.ToTable("ActivitiesType");
+                    b.ToTable("ActivitiesType", (string)null);
 
                     b.HasData(
                         new
@@ -255,7 +255,7 @@ namespace FlowCRM.Migrations
                     b.HasIndex("CompanyName")
                         .IsUnique();
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
 
                     b.HasData(
                         new
@@ -330,7 +330,7 @@ namespace FlowCRM.Migrations
 
                     b.HasIndex("FkCustomerId");
 
-                    b.ToTable("Contacts");
+                    b.ToTable("Contacts", (string)null);
 
                     b.HasData(
                         new
@@ -388,7 +388,7 @@ namespace FlowCRM.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
 
                     b.HasData(
                         new
@@ -465,7 +465,7 @@ namespace FlowCRM.Migrations
 
                     b.HasIndex("FkPriorityId");
 
-                    b.ToTable("Deals");
+                    b.ToTable("Deals", (string)null);
                 });
 
             modelBuilder.Entity("FlowCRM.Shared.Entities.DealStatus", b =>
@@ -483,7 +483,7 @@ namespace FlowCRM.Migrations
                     b.HasIndex("StatusName")
                         .IsUnique();
 
-                    b.ToTable("DealsStatus");
+                    b.ToTable("DealsStatus", (string)null);
 
                     b.HasData(
                         new
@@ -558,7 +558,7 @@ namespace FlowCRM.Migrations
 
                     b.HasIndex("FkPriorityId");
 
-                    b.ToTable("Leads");
+                    b.ToTable("Leads", (string)null);
                 });
 
             modelBuilder.Entity("FlowCRM.Shared.Entities.Priority", b =>
@@ -576,7 +576,7 @@ namespace FlowCRM.Migrations
                     b.HasIndex("PriorityName")
                         .IsUnique();
 
-                    b.ToTable("Priorities");
+                    b.ToTable("Priorities", (string)null);
 
                     b.HasData(
                         new
