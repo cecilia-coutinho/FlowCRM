@@ -128,7 +128,7 @@ namespace FlowCRM.Implementations
             existingCustomer.UpdatedBy = customer.UpdatedBy;
 
             //existingCustomer = customer;
-            existingCustomer.UpdatedAt = DateTime.Now;
+            //existingCustomer.UpdatedAt = DateTime.Now;
 
             _context.Entry(existingCustomer).State = EntityState.Modified;
             await _context.SaveChangesAsync();
