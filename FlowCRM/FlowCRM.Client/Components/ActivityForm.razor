@@ -1,0 +1,89 @@
+﻿@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Activity Details</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form @onsubmit="HandleSubmit">
+                        <div class="form-group mb-3">
+                            <label for="Deal">Deal</label>
+                            <select class="form-control select-css" id="Deal" @bind="Activity.FkDealId">
+                                @if (deals != null)
+                                {
+                                    @foreach (var deal in deals)
+                                    {
+                                        <option value="@deal.DealId">@deal.DealName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Type">Type</label>
+                            <select class="form-control select-css" id="Type" @bind="Activity.FkActivityTypeId">
+                                @if (types != null)
+                                {
+                                    @foreach (var type in types)
+                                    {
+                                        <option value="@type.ActivityTypeId">@type.TypeName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Note">Note</label>
+                            <input type="text" class="form-control" id="Note" @bind="Activity.ActivityNote">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Date">Activity Date</label>
+                            <input type="text" class="form-control" id="Date" @bind="Activity.ActivityDate">
+                        </div>
+                        @if (Mode != "view")
+                        {
+                            <button type="submit" class="btn btn-primary mb-3">Save Changes</button>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Activity Activity { get; set; }
+
+    [Parameter]
+    public List<Deal>? deals { get; set; }
+
+    [Parameter]
+    public List<ActivityType>? types { get; set; }
+
+    [Parameter]
+    public EventCallback<Activity> OnSubmit { get; set; }
+
+    [Parameter]
+    public bool IsModalVisible { get; set; }
+
+    [Parameter]
+    public string? Mode { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsModalVisibleChanged { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(Activity);
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        await IsModalVisibleChanged.InvokeAsync(false);
+    }
+}
