@@ -51,8 +51,13 @@ namespace FlowCRM.Implementations
 				throw new Exception($"No activity found: {activity}");
 			}
 
-			existingActivity = activity;
+			existingActivity.FkDealId = activity.FkDealId;
+			existingActivity.FkActivityTypeId = activity.FkActivityTypeId;
+			existingActivity.ActivityNote = activity.ActivityNote;
+			existingActivity.ActivityDate = activity.ActivityDate;
 			existingActivity.UpdatedAt = DateTime.Now;
+			existingActivity.UpdatedBy = activity.UpdatedBy;
+
 			_context.Entry(existingActivity).State = EntityState.Modified;
 			await _context.SaveChangesAsync();
 			return existingActivity;
