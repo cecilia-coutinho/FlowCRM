@@ -177,8 +177,15 @@ namespace FlowCRM.Implementations
                 throw new Exception($"No deal found: {deal}");
             }
 
-            existingDeal = deal;
+            existingDeal.DealName = deal.DealName;
+            existingDeal.DealAmount = deal.DealAmount;
+            existingDeal.FkCustomerId = deal.FkCustomerId;
+            existingDeal.FkCompanyId = deal.FkCompanyId;
+            existingDeal.FkDealStatusId = deal.FkDealStatusId;
+            existingDeal.FkPriorityId = deal.FkPriorityId;
             existingDeal.UpdatedAt = DateTime.Now;
+            existingDeal.UpdatedBy = deal.UpdatedBy;
+
             _context.Entry(existingDeal).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return existingDeal;
