@@ -105,8 +105,15 @@ namespace FlowCRM.Implementations
 				throw new Exception($"No company found: {company}");
 			}
 
-			existingCompany = company;
+			existingCompany.CompanyName = company.CompanyName;
+			existingCompany.CompanyAddress = company.CompanyAddress;
+			existingCompany.CompanyEmailAddress = company.CompanyEmailAddress;
+			existingCompany.CompanyPhoneNumber = company.CompanyPhoneNumber;
+			existingCompany.City = company.City;
+			existingCompany.Country = company.Country;
 			existingCompany.UpdatedAt = DateTime.Now;
+			existingCompany.UpdatedBy = company.UpdatedBy;
+
 			_context.Entry(existingCompany).State = EntityState.Modified;
 			await _context.SaveChangesAsync();
 			return existingCompany;
