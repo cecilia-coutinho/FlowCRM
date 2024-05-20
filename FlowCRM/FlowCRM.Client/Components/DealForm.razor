@@ -1,0 +1,119 @@
+﻿@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Deal Details</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form @onsubmit="HandleSubmit">
+                        <div class="form-group mb-3">
+                            <label for="DealName">Deal</label>
+                            <input type="text" class="form-control" id="DealName" @bind="Deal.DealName">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="DealAmount">Amount</label>
+                            <input type="text" class="form-control" id="DealAmount" @bind="Deal.DealAmount">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Priority">Priority</label>
+                            <select class="form-control select-css" id="Priority" @bind="Deal.FkPriorityId">
+                                @if (priorities != null)
+                                {
+                                    @foreach (var priority in priorities)
+                                    {
+                                        <option value="@priority.PriorityId">@priority.PriorityName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Status">Status</label>
+                            <select class="form-control select-css" id="Status" @bind="Deal.FkDealStatusId">
+                                @if (dealStatuses != null)
+                                {
+                                    @foreach (var status in dealStatuses)
+                                    {
+                                        <option value="@status.DealStatusId">@status.StatusName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Customer">Customer</label>
+                            <select class="form-control select-css" id="Customer" @bind="Deal.FkCustomerId">
+                                @if (customers != null)
+                                {
+                                    @foreach (var customer in customers)
+                                    {
+                                        <option value="@customer.CustomerId">@($"{customer.FirstName} {customer.LastName}")</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="Company">Company</label>
+                            <select class="form-control select-css" id="Company" @bind="Deal.FkCompanyId">
+                                @if (companies != null)
+                                {
+                                    @foreach (var company in companies)
+                                    {
+                                        <option value="@company.CompanyId">@company.CompanyName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        @if (Mode != "view")
+                        {
+                            <button type="submit" class="btn btn-primary mb-3">Save Changes</button>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Deal Deal { get; set; }
+
+    [Parameter]
+    public List<Company>? companies { get; set; }
+
+    [Parameter]
+    public List<Customer>? customers { get; set; }
+
+    [Parameter]
+    public List<DealStatus>? dealStatuses { get; set; }
+
+    [Parameter]
+    public List<Priority>? priorities { get; set; }
+
+    [Parameter]
+    public EventCallback<Deal> OnSubmit { get; set; }
+
+    [Parameter]
+    public bool IsModalVisible { get; set; }
+
+    [Parameter]
+    public string? Mode { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsModalVisibleChanged { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(Deal);
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        await IsModalVisibleChanged.InvokeAsync(false);
+    }
+}
