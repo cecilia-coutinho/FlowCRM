@@ -1,4 +1,6 @@
-﻿using FlowCRM.Shared.Entities;
+﻿using FlowCRM.CustomActionFilters;
+using FlowCRM.Implementations;
+using FlowCRM.Shared.Entities;
 using FlowCRM.Shared.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -16,12 +18,33 @@ namespace FlowCRM.Controllers
 			_activityRepository = activityRepository;
 		}
 
-		// GET: api/Activities/All-Activities
-		[HttpGet("All-Activities")]
-		public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
+        // GET: api/Activities/All-Activities?pageNumber=1&pageSize=1000
+        [HttpGet("All-Activities")]
+		public async Task<ActionResult<IEnumerable<Activity>>> GetActivities([FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
 		{
-			var activities = await _activityRepository.GetActivitiesAsync();
-			return Ok(activities);
+            try
+            {
+                var activities = await _activityRepository.GetActivitiesAsync(filterOn,
+                    filterQuery,
+                    sortBy,
+                    isAscending ?? true,
+                    pageNumber,
+                    pageSize);
+                return Ok(activities);
+
+            }
+            catch (ArgumentException ex)
+            {
+                var errorResult = new CustomErrorResult
+                {
+                    Succeeded = false,
+                    Errors = new List<string> { ex.Message }
+                };
+                return BadRequest(errorResult);
+            }
 		}
 
 		// GET: api/Activities/Single-Activity/5

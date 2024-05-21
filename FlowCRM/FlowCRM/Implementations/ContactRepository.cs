@@ -113,8 +113,15 @@ namespace FlowCRM.Implementations
 				throw new Exception($"No contact found: {contact}");
 			}
 
-			existingContact = contact;
+			existingContact.FkCustomerId = contact.FkCustomerId;
+			existingContact.FkCompanyId = contact.FkCompanyId;
+			existingContact.FirstName = contact.FirstName;
+			existingContact.LastName = contact.LastName;
+			existingContact.Email = contact.Email;
+			existingContact.PhoneNumber = contact.PhoneNumber;
 			existingContact.UpdatedAt = DateTime.Now;
+			existingContact.UpdatedBy = contact.UpdatedBy;
+
 			_context.Entry(existingContact).State = EntityState.Modified;
 			await _context.SaveChangesAsync();
 			return existingContact;

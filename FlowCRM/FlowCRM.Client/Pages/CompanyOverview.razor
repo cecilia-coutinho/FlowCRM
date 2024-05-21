@@ -6,64 +6,209 @@
 <h1>Companies</h1>
 <p>This is the companies overview page.</p>
 
-@if (companies.Count == 0)
-{
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-}
-else
-{
-    <table class="table">
-        <thead>
+<div class="filter-container">
+    <label for="filterField">Filter By:</label>
+    <select id="filterField" @bind="selectedField">
+        <option value="" selected disabled>Select field</option>
+        <option value="CompanyName">Company Name</option>
+        <option value="Email">Email</option>
+        <option value="City">City</option>
+        <option value="Country">Country</option>
+    </select>
+
+    <SearchBox Items="filteredCompanies" OnSearch="UpdateFilteredCompanies" />
+</div>
+
+<div>
+    <button class="btn btn-primary" style="margin-bottom: 20px;" @onclick='()=>OpenModal(new Company(), "add")'>
+        <i class="bi bi-person-plus"></i> Add Company
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
             <tr>
+                <th>#</th>
                 <th>Company Name</th>
-                <th>Address</th>
                 <th>Email</th>
-                <th>Phone Number</th>
                 <th>City</th>
                 <th>Country</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var companie in companies)
+            @if (filteredCompanies is not null)
             {
-                <tr>
-                    <td>@companie.CompanyName</td>
-                    <td>@companie.CompanyAddress</td>
-                    <td>@companie.CompanyEmailAddress</td>
-                    <td>@companie.CompanyPhoneNumber</td>
-                    <td>@companie.City</td>
-                    <td>@companie.Country</td>
-                    <td>
-                        <div class="hstack gap-2">
-                            <i class="oi oi-pencil text-info"></i>
-                            <i class="oi oi-trash text-danger"></i>
-                        </div>
-                    </td>
-                </tr>
+                int count = 1;
+                @foreach (var company in filteredCompanies)
+                {
+                    <tr>
+                        <th scope="row">@count</th>
+                        <td>@company.CompanyName</td>
+                        <td>@company.CompanyEmailAddress</td>
+                        <td>@company.City</td>
+                        <td>@company.Country</td>
+                        <td>
+                            <div class="hstack gap-2">
+                                <button class="btn btn-secondary" @onclick='()=>OpenModal(company, "view")'>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-primary" @onclick='()=>OpenModal(company, "edit")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-danger" @onclick="()=>DeleteCompany(company.CompanyId)">
+                                    <i class=" bi bi-trash">
+                                    </i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <p>There are currently no company in the database. Please check back later or add a new company.</p>
+                </div>
             }
         </tbody>
     </table>
-}
 
+    <div>
+        <Pagination Items="companies" currentPage="currentPage" pageSize="pageSize" totalCustomers="totalCompanies" totalPages="totalPages" OnPageChanged="ShowPage">
+        </Pagination>
+    </div>
+
+</div>
+
+@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+    </div>
+    <div class="modal-body">
+        <CompanyForm Company="selectedCompany" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+    </div>
+
+}
 @code {
     List<Company> companies = new List<Company>();
+    List<Company> filteredCompanies = new();
+    private Company selectedCompany = new();
+    private bool IsModalVisible { get; set; }
+    private string Mode = string.Empty;
+    private int currentPage = 1;
+    private int defaultPageSize = 10;
+    private int pageSize;
+    private string searchTerm = string.Empty;
+    private string? selectedField;
+    private int totalCompanies;
+    private int totalPages;
+
+    private async Task OnSearchTermChanged(string newSearchTerm)
+    {
+        searchTerm = newSearchTerm;
+        await LoadCompanies();
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        currentPage = i;
+        await LoadCompanies();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await CompanyService.GetCompaniesAsync();
+        await LoadCompanies();
+    }
+
+    private async Task LoadCompanies()
+    {
+        var result = await CompanyService.GetCompaniesAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
         companies.Clear();
-
         if (result == null)
-        {
             return;
+
+        companies = result.ToList();
+        UpdateFilteredCompanies(searchTerm);
+
+    }
+
+    private void UpdateFilteredCompanies(string searchTerm)
+    {
+        IEnumerable<Company> filtered = companies;
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            filtered = companies.Where(company =>
+            {
+                switch (selectedField)
+                {
+                    case "CompanyName":
+                        return company.CompanyName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Email":
+                        return company.CompanyEmailAddress?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "City":
+                        return company.City?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Country":
+                        return company.Country?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    default:
+                        return false;
+                }
+            });
+        }
+        pageSize = !string.IsNullOrEmpty(searchTerm) ? filtered.Count() : defaultPageSize;
+        totalCompanies = filtered.Count();
+        totalPages = (int)Math.Ceiling((double)totalCompanies / pageSize);
+
+        filteredCompanies = filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private async Task DeleteCompany(Guid companyId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this company?");
+        if (confirmed)
+        {
+            await CompanyService.DeleteCompanyAsync(companyId);
+            await LoadCompanies();
+        }
+    }
+
+    private async Task HandleSubmit(Company company)
+    {
+        if (Mode == "add")
+        {
+            await CompanyService.AddCompanyAsync(company);
+        }
+        if (Mode == "view")
+        {
+            await CompanyService.GetCompanyAsync(company.CompanyId);
+        }
+        if (Mode == "edit")
+        {
+            await CompanyService.UpdateCompanyAsync(company);
         }
 
-        foreach (var company in result)
-        {
-            companies.Add(company);
-        }
+        await LoadCompanies();
+        IsModalVisible = false;
+    }
+
+    private void OpenModal(Company company, string mode)
+    {
+        selectedCompany = company;
+        Mode = mode;
+        IsModalVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+        StateHasChanged();
     }
 }

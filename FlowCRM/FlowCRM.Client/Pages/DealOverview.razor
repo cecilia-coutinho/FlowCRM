@@ -6,44 +6,91 @@
 <h1>Deals</h1>
 <p>This is the deals overview page.</p>
 
+<div class="filter-container">
+    <label for="filterField">Filter By:</label>
+    <select id="filterField" @bind="selectedField">
+        <option value="" selected disabled>Select field</option>
+        <option value="DealName">Deal Name</option>
+        <option value="DealAmount">Deal Amount</option>
+        <option value="DealStatus">Deal Status</option>
+        <option value="Priority">Priority</option>
+        <option value="Company">Company</option>
+        <option value="CustomerFirstName">Customer First Name</option>
+        <option value="CustomerLastName">Customer Last Name</option>
+        <option value="CustomerEmail">Customer Email</option>
+    </select>
 
-@if (deals.Count == 0)
-{
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-}
-else
-{
-    <table class="table">
-        <thead>
+    <SearchBox Items="filteredDeals" OnSearch="UpdateFilteredDeals" />
+</div>
+
+<div>
+    <button class="btn btn-primary" style="margin-bottom: 20px;" @onclick='()=>OpenModal(new Deal(), "add")'>
+        <i class="bi bi-person-plus"></i> Add Deal
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
             <tr>
+                <th>#</th>
+                <th>Deal</th>
+                <th>Deal Amount</th>
+                <th>Deal Status</th>
+                <th>Priority</th>
                 <th>Customer</th>
                 <th>Company</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Priority</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var deal in deals)
+            @if (filteredDeals is not null)
             {
-                <tr>
-                    <td>@customers.FirstOrDefault(c => c.CustomerId == deal.FkCompanyId)?.FirstName + ' ' + @customers.FirstOrDefault(c => c.CustomerId == deal.FkCompanyId)?.LastName</td>
-                    <td>@companies.FirstOrDefault(c => c.CompanyId == deal.FkCompanyId)?.CompanyName</td>
-                    <td>@dealStatus.FirstOrDefault(ds => ds.DealStatusId == deal.FkDealStatusId)?.StatusName</td>
-                    <td>@priority.FirstOrDefault(p => p.PriorityId == deal.FkPriorityId)?.PriorityName</td>
-                    <td>
-                        <div class="hstack gap-2">
-                            <i class="oi oi-pencil text-info"></i>
-                            <i class="oi oi-trash text-danger"></i>
-                        </div>
-                    </td>
-                </tr>
+                int count = 1;
+                @foreach (var deal in filteredDeals)
+                {
+                    <tr>
+                        <th scope="row">@count</th>
+                        <td>@deal.DealName</td>
+                        <td>@deal.DealAmount</td>
+                        <td>@dealsStatus.FirstOrDefault(ds => ds.DealStatusId == deal.FkDealStatusId)?.StatusName</td>
+                        <td>@priorities.FirstOrDefault(p => p.PriorityId == deal.FkPriorityId)?.PriorityName</td>
+                        <td>@($"{customers.FirstOrDefault(p => p.CustomerId == deal.FkCustomerId)?.FirstName} {customers.FirstOrDefault(p => p.CustomerId == deal.FkCustomerId)?.LastName}")</td>
+
+                        <td>@companies.FirstOrDefault(c => c.CompanyId == deal.FkCompanyId)?.CompanyName</td>
+                        <td>
+                            <div class="hstack gap-2">
+                                <button class="btn btn-secondary" @onclick='()=>OpenModal(deal, "view")'>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-primary" @onclick='()=>OpenModal(deal, "edit")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <p>There are currently no leads in the database. Please check back later or add a new lead.</p>
+                </div>
             }
         </tbody>
     </table>
+</div>
+
+@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+    </div>
+    <div class="modal-body">
+        <DealForm Deal="selectedDeal" companies="companies" customers="customers" dealStatuses="dealsStatus" priorities="priorities" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+    </div>
+
 }
 
 
@@ -51,49 +98,190 @@ else
     List<Deal> deals = new List<Deal>();
     List<Company> companies = new List<Company>();
     List<Customer> customers = new List<Customer>();
-    List<DealStatus> dealStatus = new List<DealStatus>();
-    List<Priority> priority = new List<Priority>();
+    List<DealStatus> dealsStatus = new List<DealStatus>();
+    List<Priority> priorities = new List<Priority>();
+
+    List<Deal> filteredDeals = new();
+    private string? selectedField;
+    private int currentPage = 1;
+    private int defaultPageSize = 10;
+    private int pageSize;
+    private int totalDeals;
+    private int totalPages;
+    private string searchTerm = string.Empty;
+    private Deal selectedDeal = new();
+    private Customer? customer = new();
+    private bool IsModalVisible { get; set; }
+    private string Mode = string.Empty;
+
+    private async Task OnSearchTermChanged(string newSearchTerm)
+    {
+        searchTerm = newSearchTerm;
+        await LoadDeals();
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        currentPage = i;
+        await LoadDeals();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        var dealResult = await DealService.GetDealsAsync();
-        var customerResult = await CustomerService.GetCustomersAsync();
-        var companyResult = await CompanyService.GetCompaniesAsync();
-        var dealStatusResult = await DealStatusService.GetDealStatusesAsync();
-        var priorityResult = await PriorityService.GetPrioritiesAsync();
+        await LoadDeals();
+        await LoadCompanies();
+        await LoadCustomers();
+        await LoadDealStatus();
+        await LoadPriorities();
+    }
 
+    private async Task LoadDeals()
+    {
+        var result = await DealService.GetDealsAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
         deals.Clear();
-        customers.Clear();
-        companies.Clear();
-        dealStatus.Clear();
-        priority.Clear();
-
-        if (dealResult == null)
+        if (result == null)
             return;
 
-        foreach (var deal in dealResult)
+        deals = result.ToList();
+        UpdateFilteredDeals(searchTerm);
+    }
+
+    private async Task LoadCustomers()
+    {
+        var result = await CustomerService.GetCustomersAsync();
+        customers.Clear();
+        if (result == null)
+            return;
+
+        customers = result.ToList();
+        UpdateFilteredDeals(searchTerm);
+    }
+
+    private async Task LoadCompanies()
+    {
+        var result = await CompanyService.GetCompaniesAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
+        companies.Clear();
+        if (result == null)
+            return;
+
+        companies = result.ToList();
+        UpdateFilteredDeals(searchTerm);
+    }
+
+    private async Task LoadDealStatus()
+    {
+        var result = await DealStatusService.GetDealStatusesAsync();
+        dealsStatus.Clear();
+        if (result == null)
+            return;
+
+        dealsStatus = result.ToList();
+        UpdateFilteredDeals(searchTerm);
+    }
+
+    private async Task LoadPriorities()
+    {
+        var result = await PriorityService.GetPrioritiesAsync();
+        priorities.Clear();
+        if (result == null)
+            return;
+
+        priorities = result.ToList();
+        UpdateFilteredDeals(searchTerm);
+    }
+
+    private void UpdateFilteredDeals(string searchTerm)
+    {
+        IEnumerable<Deal> filtered = deals;
+
+        if (!string.IsNullOrEmpty(searchTerm))
         {
-            deals.Add(deal);
+            filtered = deals.Where(deal =>
+            {
+                switch (selectedField)
+                {
+                    case "DealName":
+                        return deal.DealName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "DealAmount":
+                        var bounds = searchTerm.Split('-');
+                        if (bounds.Length == 2
+                        && decimal.TryParse(bounds[0], out decimal min)
+                        && decimal.TryParse(bounds[1], out decimal max))
+                        {
+                            return deal.DealAmount >= min && deal.DealAmount <= max;
+                        }
+                        else if (decimal.TryParse(searchTerm, out decimal searchAmount))
+                        {
+                            return deal.DealAmount == searchAmount;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+                    case "Company":
+                        var company = companies.FirstOrDefault(c => c.CompanyId == deal.FkCompanyId);
+                        return company?.CompanyName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "CustomerFirstName":
+                        customer = customers.FirstOrDefault(c => c.CustomerId == deal.FkCustomerId);
+                        return customer?.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "CustomerLastName":
+                        customer = customers.FirstOrDefault(c => c.CustomerId == deal.FkCustomerId);
+                        return customer?.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "CustomerEmail":
+                        customer = customers.FirstOrDefault(c => c.CustomerId == deal.FkCustomerId);
+                        return customer?.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "DealStatus":
+                        var status = dealsStatus.FirstOrDefault(ds => ds.DealStatusId == deal.FkDealStatusId);
+                        return status?.StatusName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Priority":
+                    var priority = priorities.FirstOrDefault(p => p.PriorityId == deal.FkPriorityId);
+                        return priority?.PriorityName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    default:
+                        return false;
+                }
+            });
+        }
+        pageSize = !string.IsNullOrEmpty(searchTerm) ? filtered.Count() : defaultPageSize;
+        totalDeals = filtered.Count();
+        totalPages = (int)Math.Ceiling((double)totalDeals / pageSize);
+
+        filteredDeals = filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private async Task HandleSubmit(Deal deal)
+    {
+        if (Mode == "add")
+        {
+            await DealService.AddDealAsync(deal);
+        }
+        if (Mode == "view")
+        {
+            await DealService.GetDealAsync(deal.DealId);
+        }
+        if (Mode == "edit")
+        {
+            await DealService.UpdateDealAsync(deal);
         }
 
-        foreach (var customer in customerResult)
-        {
-            customers.Add(customer);
-        }
+        await LoadDeals();
+        IsModalVisible = false;
+    }
 
-        foreach (var company in companyResult)
-        {
-            companies.Add(company);
-        }
+    private void OpenModal(Deal deal, string mode)
+    {
+        selectedDeal = deal;
+        Mode = mode;
+        IsModalVisible = true;
+        StateHasChanged();
+    }
 
-        foreach (var status in dealStatusResult)
-        {
-            dealStatus.Add(status);
-        }
-
-        foreach (var p in priorityResult)
-        {
-            priority.Add(p);
-        }
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+        StateHasChanged();
     }
 }

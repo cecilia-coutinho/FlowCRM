@@ -8,6 +8,7 @@
 <div class="filter-container">
     <label for="filterField">Filter By:</label>
     <select id="filterField" @bind="selectedField">
+        <option value="" selected disabled>Select field</option>
         <option value="FirstName">First Name</option>
         <option value="LastName">Last Name</option>
         <option value="Email">Email</option>
@@ -58,21 +59,13 @@
                                 <button class="btn btn-primary" @onclick='()=>OpenModal(lead, "edit")'>
                                     <i class="bi bi-pencil"></i>
                                 </button>
+                                <button class="btn btn-success" @onclick="()=>ConvertLeadToCustomer(lead)">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </button>
                                 <button class="btn btn-danger" @onclick="()=>DeleteLead(lead.LeadId)">
                                     <i class=" bi bi-trash">
                                     </i>
                                 </button>
-
-                                @if (IsModalVisible)
-                                {
-                                    <div class="modal" tabindex="-1" style="display:block">
-                                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <LeadForm Lead="selectedLead" companies="companies" priorities="priorities" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
-                                    </div>
-
-                                }
                             </div>
                         </td>
                     </tr>
@@ -88,6 +81,17 @@
         </tbody>
     </table>
 </div>
+
+@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+    </div>
+    <div class="modal-body">
+        <LeadForm Lead="selectedLead" companies="companies" priorities="priorities" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+    </div>
+
+}
 
 @code {
     List<Lead> leads = new List<Lead>();
@@ -193,6 +197,23 @@
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToList();
+    }
+
+    private async Task ConvertLeadToCustomer(Lead lead)
+    {
+        var customer = new Customer
+        {
+            FirstName = lead.FirstName,
+            LastName = lead.LastName,
+            Email = lead.Email,
+            City = lead.City,
+            Country = lead.Country,
+            PhoneNumber = lead.PhoneNumber
+        };
+
+        await CustomerService.AddCustomerAsync(customer);
+        await LeadService.DeleteLeadAsync(lead.LeadId);
+        await LoadLeads();
     }
 
     private async Task DeleteLead(Guid leadId)

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlowCRM", "FlowCRM\FlowCRM\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlowCRM.Client", "FlowCRM\FlowCRM.Client\FlowCRM.Client.csproj", "{DCBB1559-360C-47CD-A005-2CA1A7319AED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowCRM.Shared", "FlowCRM\FlowCRM.Shared\FlowCRM.Shared.csproj", "{D98E1199-D95A-4D94-837B-3434C6E42153}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlowCRM.Shared", "FlowCRM\FlowCRM.Shared\FlowCRM.Shared.csproj", "{D98E1199-D95A-4D94-837B-3434C6E42153}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

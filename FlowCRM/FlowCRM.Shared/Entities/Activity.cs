@@ -12,15 +12,9 @@ namespace FlowCRM.Shared.Entities
     public class Activity
     {
         public Guid ActivityId { get; set; }
-
-        [Required]
         public Guid? FkDealId { get; set; }
-
-        [Required]
         public Guid? FkActivityTypeId { get; set; }
         public string? ActivityNote { get; set; }
-
-        [Required]
         public DateOnly ActivityDate { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

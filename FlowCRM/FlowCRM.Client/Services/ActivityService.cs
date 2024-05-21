@@ -13,7 +13,7 @@ namespace FlowCRM.Client.Services
 			_httpClient = httpClient;
 		}
 
-		public async Task<IEnumerable<Activity>> GetActivitiesAsync()
+		public async Task<IEnumerable<Activity>> GetActivitiesAsync(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
 		{
 			var activities = await _httpClient.GetAsync("api/Activities/All-Activities");
 			var response = await activities.Content.ReadFromJsonAsync<IEnumerable<Activity>>();
