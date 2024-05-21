@@ -466,20 +466,6 @@ The following code snippet demonstrates the current implementation of the `Autho
 
 ##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Components/Layout/NavMenu.razor` file.
 
-and `AuthorizeView` in the API controllers:
-    
-    ```
-        [Authorize]
-        [Route("api/customers")]
-        [ApiController]
-        public class CustomersController : ControllerBase
-        {
-            ...
-        }
-    ```
-
-##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Controllers/CustomersController.cs` file.
-
 The following code snippet demonstrates how the `AuthorizeView` component can be improved to use roles and permissions to manage user access control more effectively:
 
 ```
@@ -491,6 +477,17 @@ The following code snippet demonstrates how the `AuthorizeView` component can be
         </li>
     </AuthorizeView>
 ```
+
+The 'Authorize' attribute with claims also needs to be implemented in the API controllers to enforce authorization rules on the server side.
+
+``` 
+    // Restrict by role:
+    [Authorize(Roles="Administrators")]
+    public class ValuesController : ApiController
+    {
+    }
+```
+        
 
 Additionally, the validation model can be improved to use data annotations to define validation rules directly in the model class.
 
