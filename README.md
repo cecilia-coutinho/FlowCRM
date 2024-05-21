@@ -55,7 +55,7 @@ This project is a simplified Customer Relationship Management (CRM) system desig
 
 The SQL design follows a relational database model, with tables representing entities such as Users, Customers, Companies, Contacts, Deals, Leads, Activities, DealsStatus, Priorities and ActivitiesType. These tables handle tasks such as user authentication, customer information, company details, contact records, deal tracking, lead management, activity logging, deal status tracking, priority management, and activity categorization. Relationships are established using foreign keys to maintain data integrity.
 
-![ER Model](/FlowCRM/FlowCRM/FlowCRM.Client/wwwroot/images/Db-Diagram.png)
+![ER Model](/FlowCRM/FlowCRM.Client/wwwroot/images/Db-Diagram.png)
 
 
 ### Code Structure
