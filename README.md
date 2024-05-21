@@ -99,7 +99,7 @@ Seed Data was implemented to provide a set of information that is automatically 
         }
 ```
 
-Can be found in the `FlowCRM/FlowCRM/FlowCRM/Data/ModelBuilderExtension.cs` file.
+##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Data/ModelBuilderExtension.cs` file.
 
 ### User Authentication
 
@@ -205,7 +205,7 @@ The following code snippet demonstrates the repository pattern implementation fo
 
 ```
 
-Can be found in the `FlowCRM/FlowCRM/FlowCRM/Implementations/CustomerRepository.cs` file.
+##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Implementations/CustomerRepository.cs` file.
 
    #### Interfaces
 
@@ -222,7 +222,7 @@ Can be found in the `FlowCRM/FlowCRM/FlowCRM/Implementations/CustomerRepository.
 	    }
     ```
 
-Can be found in the `FlowCRM/FlowCRM/FlowCRM.Shared/Repositories/ICustomerRepository.cs` file.
+##### Can be found in the `FlowCRM/FlowCRM/FlowCRM.Shared/Repositories/ICustomerRepository.cs` file.
 
 ### Action Filters
 
@@ -261,7 +261,7 @@ The following code snippet illustrates the current implementation of the action 
     }
 ```
 
-Can be found in the `FlowCRM/FlowCRM/FlowCRM/CustomActionFilters/` folder.
+##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/CustomActionFilters/` folder.
 
 ### Components
 
@@ -336,7 +336,7 @@ The following code snippet demonstrates the implementation of a component that d
 
 ```
 
-Can be found in the `FlowCRM/FlowCRM/FlowCRM.Client/Components/CustomerForm.razor` file.
+##### Can be found in the `FlowCRM/FlowCRM/FlowCRM.Client/Components/CustomerForm.razor` file.
 
 ### Validation
 
@@ -444,6 +444,52 @@ Future improvements could include adding roles and permissions to manage user ac
     {
         ...
     }
+```
+
+Currently the application manage authorized views using the `AuthorizeView` component, but it could be improved to use roles and permissions to manage user access control more effectively.
+
+The following code snippet demonstrates the current implementation of the `AuthorizeView` component:
+
+```
+ <AuthorizeView>
+            <Authorized>
+            ...
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="customers">
+                        <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Customers
+                    </NavLink>
+                </div>
+
+        ...
+            </Authorized>
+```
+
+##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Components/Layout/NavMenu.razor` file.
+
+and `AuthorizeView` in the API controllers:
+    
+    ```
+        [Authorize]
+        [Route("api/customers")]
+        [ApiController]
+        public class CustomersController : ControllerBase
+        {
+            ...
+        }
+    ```
+
+##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Controllers/CustomersController.cs` file.
+
+The following code snippet demonstrates how the `AuthorizeView` component can be improved to use roles and permissions to manage user access control more effectively:
+
+```
+    <AuthorizeView Roles="Admin">
+        <li class="nav-item">
+            <NavLink class="nav-link" href="customers">
+                <span class="oi oi-people" aria-hidden="true"></span> Customers
+            </NavLink>
+        </li>
+    </AuthorizeView>
 ```
 
 Additionally, the validation model can be improved to use data annotations to define validation rules directly in the model class.
