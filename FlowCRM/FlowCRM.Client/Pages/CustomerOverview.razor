@@ -8,6 +8,7 @@
 <div class="filter-container">
     <label for="filterField">Filter By:</label>
     <select id="filterField" @bind="selectedField">
+        <option value="" selected disabled>Select field</option>
         <option value="FirstName">First Name</option>
         <option value="LastName">Last Name</option>
         <option value="Email">Email</option>
@@ -59,17 +60,6 @@
                                     <i class=" bi bi-trash">
                                     </i>
                                 </button>
-
-                                @if (IsModalVisible)
-                                {
-                                    <div class="modal" tabindex="-1" style="display:block">
-                                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <CustomerForm Customer="selectedCustomer" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
-                                    </div>
-
-                                }
                             </div>
                         </td>
                     </tr>
@@ -91,6 +81,17 @@
     </div>
 
 </div>
+
+@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+    </div>
+    <div class="modal-body">
+        <CustomerForm Customer="selectedCustomer" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+    </div>
+
+}
 
 @* <div class="card-body">
     <QuickGrid Items="@customersQueryable">
@@ -120,7 +121,7 @@
     List<Customer> filteredCustomers = new();
     private Customer selectedCustomer = new();
     private bool IsModalVisible { get; set; }
-    private Customer addedCustomer = new();
+    // private Customer addedCustomer = new();
     private string Mode = string.Empty;
     private int currentPage = 1;
     private int defaultPageSize = 10;

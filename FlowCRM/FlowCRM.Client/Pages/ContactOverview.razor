@@ -6,68 +6,248 @@
 <h1>Contacts</h1>
 <p>This is the contacts overview page.</p>
 
-@if (contacts.Count == 0)
-{
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-}
-else
-{
-    <table class="table">
-        <thead>
+<div class="filter-container">
+    <label for="filterField">Filter By:</label>
+    <select id="filterField" @bind="selectedField">
+        <option value="" selected disabled>Select field</option>
+        <option value="FirstName">First Name</option>
+        <option value="LastName">Last Name</option>
+        <option value="Email">Email</option>
+        <option value="Company">Company</option>
+        <option value="CustomerFirstName">Customer First Name</option>
+        <option value="CustomerLastName">Customer Last Name</option>
+        <option value="CustomerEmail">Customer Email</option>
+    </select>
+
+    <SearchBox Items="filteredContacts" OnSearch="UpdateFilteredContacts" />
+</div>
+
+<div>
+    <button class="btn btn-primary" style="margin-bottom: 20px;" @onclick='()=>OpenModal(new Contact(), "add")'>
+        <i class="bi bi-person-plus"></i> Add Contact
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
             <tr>
+                <th>#</th>
                 <th>First Name</th>
                 <th>Last Name</th>
-                <th>Company</th>
                 <th>Email</th>
-                <th>Phone Number</th>
+                <th>Customer</th>
+                <th>Company</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var contact in contacts)
+            @if (filteredContacts is not null)
             {
-                <tr>
-                    <td>@contact.FirstName</td>
-                    <td>@contact.LastName</td>
-                    <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
-                    <td>@contact.Email</td>
-                    <td>@contact.PhoneNumber</td>
-                    <td>
-                        <div class="hstack gap-2">
-                            <i class="oi oi-pencil text-info"></i>
-                            <i class="oi oi-trash text-danger"></i>
-                        </div>
-                    </td>
-                </tr>
+                int count = 1;
+                @foreach (var contact in filteredContacts)
+                {
+                    <tr>
+                        <th scope="row">@count</th>
+                        <td>@contact.FirstName</td>
+                        <td>@contact.LastName</td>
+                        <td>@contact.Email</td>
+                        <td>@($"{customers.FirstOrDefault(p => p.CustomerId == contact.FkCustomerId)?.FirstName} {customers.FirstOrDefault(p => p.CustomerId == contact.FkCustomerId)?.LastName}")</td>
+
+                        <td>@companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId)?.CompanyName</td>
+                        <td>
+                            <div class="hstack gap-2">
+                                <button class="btn btn-secondary" @onclick='()=>OpenModal(contact, "view")'>
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-primary" @onclick='()=>OpenModal(contact, "edit")'>
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-danger" @onclick="()=>DeleteContact(contact.ContactId)">
+                                    <i class=" bi bi-trash">
+                                    </i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <p>There are currently no leads in the database. Please check back later or add a new lead.</p>
+                </div>
             }
         </tbody>
     </table>
+</div>
+
+@if (IsModalVisible)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+    </div>
+    <div class="modal-body">
+        <ContactForm Contact="selectedContact" companies="companies" customers="customers" OnSubmit="HandleSubmit" IsModalVisible="IsModalVisible" IsModalVisibleChanged="((bool b) => IsModalVisible = b)" Mode="@Mode" />
+    </div>
+
 }
+
 
 @code {
     List<Contact> contacts = new List<Contact>();
     List<Company> companies = new List<Company>();
+    List<Customer> customers = new List<Customer>();
+
+    List<Contact> filteredContacts = new();
+    private string? selectedField;
+    private int currentPage = 1;
+    private int defaultPageSize = 10;
+    private int pageSize;
+    private int totalContacts;
+    private int totalPages;
+    private string searchTerm = string.Empty;
+    private Contact selectedContact = new();
+    private Customer? customer = new();
+    private bool IsModalVisible { get; set; }
+    private string Mode = string.Empty;
+
+    private async Task OnSearchTermChanged(string newSearchTerm)
+    {
+        searchTerm = newSearchTerm;
+        await LoadContacts();
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        currentPage = i;
+        await LoadContacts();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        var contactResult = await ContactService.GetContactsAsync();
-        var companyResult = await CompanyService.GetCompaniesAsync();
-        contacts.Clear();
-        companies.Clear();
+        await LoadContacts();
+        await LoadCompanies();
+        await LoadCustomers();
+    }
 
-        if (contactResult == null)
+    private async Task LoadContacts()
+    {
+        var result = await ContactService.GetContactsAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
+        contacts.Clear();
+        if (result == null)
             return;
 
-        foreach (var contact in contactResult)
+        contacts = result.ToList();
+        UpdateFilteredContacts(searchTerm);
+    }
+
+    private async Task LoadCustomers()
+    {
+        var result = await CustomerService.GetCustomersAsync();
+        customers.Clear();
+        if (result == null)
+            return;
+
+        customers = result.ToList();
+        UpdateFilteredContacts(searchTerm);
+    }
+
+    private async Task LoadCompanies()
+    {
+        var result = await CompanyService.GetCompaniesAsync(filterOn: selectedField, filterQuery: searchTerm, pageNumber: currentPage, pageSize: pageSize);
+        companies.Clear();
+        if (result == null)
+            return;
+
+        companies = result.ToList();
+        UpdateFilteredContacts(searchTerm);
+    }
+
+    private void UpdateFilteredContacts(string searchTerm)
+    {
+        IEnumerable<Contact> filtered = contacts;
+
+        if (!string.IsNullOrEmpty(searchTerm))
         {
-            contacts.Add(contact);
+            filtered = contacts.Where(contact =>
+            {
+                switch (selectedField)
+                {
+                    case "FirstName":
+                        return contact.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "LastName":
+                        return contact.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Email":
+                        return contact.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "Company":
+                        var company = companies.FirstOrDefault(c => c.CompanyId == contact.FkCompanyId);
+                        return company?.CompanyName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "CustomerFirstName":
+                        customer = customers.FirstOrDefault(c => c.CustomerId == contact.FkCustomerId);
+                        return customer?.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "CustomerLastName":
+                        customer = customers.FirstOrDefault(c => c.CustomerId == contact.FkCustomerId);
+                        return customer?.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    case "CustomerEmail":
+                        customer = customers.FirstOrDefault(c => c.CustomerId == contact.FkCustomerId);
+                        return customer?.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false;
+                    default:
+                        return false;
+                }
+            });
+        }
+        pageSize = !string.IsNullOrEmpty(searchTerm) ? filtered.Count() : defaultPageSize;
+        totalContacts = filtered.Count();
+        totalPages = (int)Math.Ceiling((double)totalContacts / pageSize);
+
+        filteredContacts = filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private async Task DeleteContact(Guid contactId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this contact?");
+        if (confirmed)
+        {
+            await ContactService.DeleteContactAsync(contactId);
+            await LoadContacts();
+        }
+    }
+
+    private async Task HandleSubmit(Contact contact)
+    {
+        if (Mode == "add")
+        {
+            await ContactService.AddContactAsync(contact);
+        }
+        if (Mode == "view")
+        {
+            await ContactService.GetContactAsync(contact.ContactId);
+        }
+        if (Mode == "edit")
+        {
+            await ContactService.UpdateContactAsync(contact);
         }
 
-        foreach (var company in companyResult)
-        {
-            companies.Add(company);
-        }
+        await LoadContacts();
+        IsModalVisible = false;
+    }
+
+    private void OpenModal(Contact contact, string mode)
+    {
+        selectedContact = contact;
+        Mode = mode;
+        IsModalVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        IsModalVisible = false;
+        StateHasChanged();
     }
 }
