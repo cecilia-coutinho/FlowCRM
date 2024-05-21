@@ -50,11 +50,12 @@ This project is a simplified Customer Relationship Management (CRM) system desig
 
 ## 📋 Additional Information
 
+
 ### SQL Design
 
 The SQL design follows a relational database model, with tables representing entities such as Users, Customers, Companies, Contacts, Deals, Leads, Activities, DealsStatus, Priorities and ActivitiesType. These tables handle tasks such as user authentication, customer information, company details, contact records, deal tracking, lead management, activity logging, deal status tracking, priority management, and activity categorization. Relationships are established using foreign keys to maintain data integrity.
 
-![ER Model](/FlowCRM/FlowCRM/FlowCRM/images/Db-Diagram.png)
+![ER Model](/FlowCRM/FlowCRM/FlowCRM/wwwroot/images/Db-Diagram.png)
 
 
 ### Code Structure
@@ -65,15 +66,15 @@ On the server-side, tasks include managing user accounts, transferring SQL data,
 
 The logic is structured around nine main controllers: Customers, Companies, Contacts, Deals, Leads, Activities, DealsStatus, Priorities and ActivitiesType. The project is structured with specific folders for managing the database context, implementing the repository pattern, handling data management, and applying Action Filters.
 
-![Code Structure 1](/FlowCRM/FlowCRM/FlowCRM/images/code-structure_server-side.PNG)
+![Code Structure 1](/FlowCRM/FlowCRM/FlowCRM/wwwroot/images/code-structure_server-side.PNG)
 
 The client-side manages the creation of an interactive and dynamic user interface while initiating requests to the server-side. It is organized with specific folders for components, pages, and services.
 
-![Code Structure 2](/FlowCRM/FlowCRM/FlowCRM/images/code-structure_client-side.PNG)
+![Code Structure 2](/FlowCRM/FlowCRM/FlowCRM/wwwroot/images/code-structure_client-side.PNG)
 
 Additionally, there is a shared library used by both server and client sides. These components manage functionalities such as entities and interfaces.
 
-![Code Structure 3](/FlowCRM/FlowCRM/FlowCRM/images/code-structure_shared.PNG)
+![Code Structure 3](/FlowCRM/FlowCRM/FlowCRM/wwwroot/images/code-structure_shared.PNG)
 
 #### Seed Data
 
@@ -466,20 +467,6 @@ The following code snippet demonstrates the current implementation of the `Autho
 
 ##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Components/Layout/NavMenu.razor` file.
 
-and `AuthorizeView` in the API controllers:
-    
-    ```
-        [Authorize]
-        [Route("api/customers")]
-        [ApiController]
-        public class CustomersController : ControllerBase
-        {
-            ...
-        }
-    ```
-
-##### Can be found in the `FlowCRM/FlowCRM/FlowCRM/Controllers/CustomersController.cs` file.
-
 The following code snippet demonstrates how the `AuthorizeView` component can be improved to use roles and permissions to manage user access control more effectively:
 
 ```
@@ -491,6 +478,17 @@ The following code snippet demonstrates how the `AuthorizeView` component can be
         </li>
     </AuthorizeView>
 ```
+
+The 'Authorize' attribute with claims also needs to be implemented in the API controllers to enforce authorization rules on the server side.
+
+``` 
+    // Restrict by role:
+    [Authorize(Roles="Administrators")]
+    public class ValuesController : ApiController
+    {
+    }
+```
+        
 
 Additionally, the validation model can be improved to use data annotations to define validation rules directly in the model class.
 
